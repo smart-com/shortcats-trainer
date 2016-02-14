@@ -1,0 +1,14 @@
+main {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+}
+
+.play-area {
+	width: 50vh;
+	height: 30vw;
+	background-color: silver;
+	border-radius: 10px;
+}
