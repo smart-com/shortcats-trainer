@@ -12,3 +12,114 @@ main {
 	background-color: silver;
 	border-radius: 10px;
 }
+
+
+/* Lydia: Atom Shortcuts Quiz */
+
+.inner-page {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	height: 100vh;
+
+	font: 24px/30px Tahoma;
+
+	color: #222;
+}
+
+.page-heading {
+	text-align: center;
+}
+
+.quiz {
+	position: relative;
+
+	width: 500px;
+	min-height: 600px;
+	margin-right: auto;
+	margin-left: auto;
+	padding-left: 0;
+
+	list-style: none;
+	background-color: #eee;
+	border-radius: 10px;
+	box-shadow: 0 10px 10px #888;
+}
+
+/* Lydia, TODO: улучшить анимацию появления/исчезания.
+ * Пока не разобралась, как это нужно было сделать.
+ */
+.quiz__card {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 0;
+
+	padding: 30px 30px 75px;
+
+	background-color: inherit;
+	border-radius: inherit;
+	opacity: 0;
+
+	transform: scale(1.1);
+	transition: opacity 1s, transform 1s;
+}
+
+.quiz__card--show {
+	z-index: 1;
+	opacity: 1;
+
+	transform: scale(1);
+}
+
+.quiz__title {
+	margin-top: 0;
+
+	text-align: center;
+}
+
+.quiz__question {
+
+}
+
+.quiz__options {
+	padding-left: 0;
+
+	list-style: none;
+}
+
+.quiz__label {
+	transition: color .2s;
+}
+
+.quiz__label:hover {
+	color: #835050;
+}
+
+.btn {
+	position: absolute;
+	right: 20px;
+	bottom: 20px;
+
+	margin-top: 20px;
+	padding: 10px 30px;
+
+	font: inherit;
+
+	color: #fff;
+	background-color: #333;
+	border: none;
+	border-radius: 5px;
+	outline: none;
+
+	transition: background-color .2s, opacity .2s;
+}
+
+.btn:hover {
+	background-color: #835050;
+}
+.btn:active {
+	opacity: .5;
+}
