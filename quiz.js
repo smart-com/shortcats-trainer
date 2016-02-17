@@ -5,16 +5,11 @@
  * расширять две главные функции основного скритпа (script.js):
  *
  * 1) общую проверку (расширить проверкой рабиобаттонов)
- * 2) переход от одного вопроса к другому.
- *    (реализовать через переключение между карточками
- *    с вопросами и выбором ответа).
+ * 2) переход от одного вопроса к другому
+ *    (расширить переключением между карточками с вопросами).
  *
  * Пока что это не так. Сейчас этот файл используется
  * для поиска решений по реализации той или иной функции.
- *
- * TODO:
- * 1) починить скрипт;
- * 2) добавить звуковое сопровождение и конфети.
  */
 
 
@@ -22,50 +17,30 @@
 // Lydia: кок-то так сделала переход между вопросами
 
 (function() {
-	if (!document.querySelector(".quiz")) {
-		return;
-	}
-
 	var quiz = document.querySelector(".quiz"),
-      cards = quiz.querySelectorAll(".quiz__card");
-
-  quiz.addEventListener("click", function(event) {
-    // Сохраняем в переменную элемент, по которому кликнули.
-    var target = event.target,
-				// Сохраняем в переменную шаг.
-				step = 1,
-				// Сохраняем в переменную текущую карточку
-				currentCard = cards[step - 1];
-
-    // Проверяем: если этот элемент не кнопка, то не реагировать.
-    if (target.tagName != "BUTTON") {
-      return;
-    }
-
-  	// Иначе - перейти к следующей карточке.
-    showNextCard(cards, "quiz__card--show", step);
-
-    // Сохраняем в переменную текущую карточку и шаг
-		if (step == arr.length) {
+			cards = quiz.querySelectorAll(".quiz__card"),
+			currentCard = cards[0],
+			nextCard = cards[1],
 			step = 1;
-			currentCard = cards[step - 1];
-		} else {
-			currentCard = cards[step];
-			++step;
+
+	quiz.addEventListener("click", function(event) {
+		var target = event.target;
+		if (target.tagName != "BUTTON") {
+			return;
 		}
-  });
 
-
-	function showNextCard(arr, elemClass, step) {
-    // Скрыть текущую карточку
-    currentCard.classList.remove(elemClass);
-
-		// Если это последняя карточка, перейти к самой первой.
-		if (step == arr.length) {
-			arr[0].classList.add(elemClass);
+		if (step != cards.length) {
+			currentCard.classList.remove("quiz__card--show");
+			nextCard.classList.add("quiz__card--show");
+			currentCard = nextCard;
+			nextCard = cards[step + 1];
+			step++;
 		} else {
-			// Иначе - показать следующую.
-			cards[step].classList.add(elemClass);
+			currentCard.classList.remove("quiz__card--show");
+			currentCard = cards[0];
+			currentCard.classList.add("quiz__card--show");
+			nextCard = cards[1];
+			step = 1;
 		}
-	}
+	});
 })();
