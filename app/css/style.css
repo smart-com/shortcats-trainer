@@ -1,0 +1,53 @@
+@import url(https://fonts.googleapis.com/css?family=Galindo);
+body {
+	background-image: url(http://subtlepatterns2015.subtlepatterns.netdna-cdn.com/patterns/45degreee_fabric.png);
+}
+
+main,
+.result-area,
+.quiz-area {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column; lightsteelblue;
+	font-family: 'Galindo', cursive;
+}
+
+main {
+	height: 100vh;
+	min-width: 475px;l
+}
+
+.playground {
+	border-radius: 6px;
+	margin: 3em auto;
+	padding: 1em;
+	box-shadow:
+		-15px -15px 2px -5px rgba(160, 82, 45, .6),
+		-15px 15px 2px -5px rgba(0, 255, 255, .6),
+		15px -15px 2px -5px rgba(255, 0, 0, .6),
+		15px 15px 2px -5px rgba(255, 255, 0, .6),
+		0 0 15px 10px rgba(224, 0, 0, .6);
+	text-shadow: 1px 1px 1px rgb(128, 0, 0);
+	color: rgb (220, 20, 60);
+}
+
+.result-area,
+.quiz-area {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	height: 8vh;
+	min-width: 400px;
+	outline: none;
+	color: rgb(165, 40, 40);
+}
+
+.result-area {
+	font-size: 1.5rem;
+}
+
+.quiz-area {
+	font-size: 2rem;
+}
