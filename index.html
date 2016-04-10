@@ -21,17 +21,21 @@
 
 	<!-- Мои стили -->
 	<link rel="stylesheet" href="app/css/style.css">
+	<link href='https://fonts.googleapis.com/css?family=Galindo&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
 </head>
 
 	<body>
-		<main>
+		<div class="playground">
+			<output class="quiz-area" id="quiz-box"></output>
+			<output class="result-area" id="result-box"></output>
+		</div>
 
-			<section class="playground">
-				<output class="quiz-area" id="quiz-box"></output>
-				<output class="result-area" id="result-box"></output>
-			</section>
+		<select class="ide-selection" name="ide-selection" id="ide-selection">
+			<option disabled>Выберите IDE</option>
+			<option value="ide_1" selected>IDE 1</option>
+			<option value="ide_2">IDE 2</option>
+		</select>
 
-		</main>
 		<script src="app/js/script.js"></script>
 	</body>
 </html>
