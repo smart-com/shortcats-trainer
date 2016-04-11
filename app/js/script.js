@@ -1,10 +1,5 @@
 window.onload = function() {
 
-	// Поле для вывода результатов тестирования
-	var resultArea = document.getElementById('result-box');
-	// Поле для вывода "вопросов"
-	var quizArea = document.getElementById('quiz-box');
-
 	// Объект для хранения
 	// соответствий клавиш
 	// цифровым кодам
@@ -44,16 +39,42 @@ window.onload = function() {
 		'shortcat': [hotkeys.ctrl, hotkeys.backSlash]
 	}];
 
+/* Проверяем IDE */
+
+	// Л: Какая IDE активна в данный момент
+	var checkIde = function() {
+		//selectedIde = select.options[select.selectedIndex].value
+		if(select.options.selectedIndex === 1) {
+			selectedIde = ide_1;
+		}
+		else {
+			selectedIde = ide_2;
+		}
+		return selectedIde;
+	};
+
 	// Л: селект, в котором выбирают IDE
 	var select = document.getElementById("ide-selection");
 	// Л: какую IDE выбрали (по умолчанию - ide_1)
-	var selectedIde = ide_1;
+	var selectedIde = checkIde();
 
-	// Л: что делать, когда выбрали IDE
-	select.onchange = function() {
-		selectedIde = select.options[select.selectedIndex].value
-		console.log(selectedIde);
-	};
+	// Событие на селект
+	select.onchange = checkIde;
+
+	/** Выбираем случайный шорткат */
+
+	// Количество хоткеев в выбранной ide
+	var hotkeyMax = selectedIde.length - 1;
+	// Индекс случайного хоткея
+	var hotkeyRand = getRand(hotkeyMax);
+	// Количество клавиш в случайном хоткее.
+	var keyMax = selectedIde[hotkeyRand].shortcat.length;
+
+	// Получаем случайное число для выбора хоткея
+	function getRand(max) {
+		var min = 0;
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
 
 	// Переменная для реализации выхода из игры
 	var play = '';
@@ -62,51 +83,39 @@ window.onload = function() {
 	var counter = 0;
 	// Строка запомнит нажатые клавиши
 	var quiz = '';
+	// Поле для вывода "вопросов"
+	var quizArea = document.getElementById('quiz-box');
+	// Поле для вывода результатов тестирования
+	var resultArea = document.getElementById('result-box');
+	// Выводим в html его описание (вопрос)
+	quizArea.value = selectedIde[hotkeyRand].description;
 	// Счетчик количества правильных ответов
 	var result = 0;
 	// Счетчик общего количества заданных вопросов
 	var total = 0;
 
-	// Получаем случайное число для выбора хоткея
-	function getRand(max) {
-		var min = 0;
-		return Math.floor(Math.random() * (max - min + 1)) + min;
-	}
-
-	// Количество хоткеев в общем списке
-	var hotkeyMax = selectedIde.length - 1;
-	// Индекс случайного хоткея
-	var hotkeyRand = getRand(hotkeyMax);
-	// Количество клавиш в данном случайном хоткее.
-	var keyMax = selectedIde[hotkeyRand].shortcat.length;
-	// Выводим в html его описание (вопрос)
-	quizArea.value = selectedIde[hotkeyRand].description;
-
-	// Функция сокращает количество набираемого кода
-	//
 	// Обнуляем список набранных клавиш
 	// И счетчик запусков проверки
 	// Выбираем следующий случайный хоткей
 	// И выводим его значение в html
-	function cleanResults() {
+	function cleanResults(selectedIde) {
 		quiz = '';
 		counter = 0;
+		hotkeyMax = checkIde().length - 1;
 		hotkeyRand = getRand(hotkeyMax);
+		selectedIde = checkIde();
 		quizArea.value = selectedIde[hotkeyRand].description;
 	}
 
-	// Вешаем обработчик нажатия клавиш
-	// Случайный шорткат уже выбран в стр.60
-	// В html уже есть его описание
-	window.document.onkeydown = checkShortcat;
-
-	// Берет шорткат и проверяет его
-	function checkShortcat(evt) {
+	// Проверяем шорткат
+	var checkShortcat = function(evt) {
 
 		// Проверяем, не был ли выполнен выход из игры
 		if (play === "finish") {
 			return;
 		}
+
+		selectedIde = checkIde();
 
 		// Наращиваем количество запусков
 		++counter;
@@ -124,6 +133,7 @@ window.onload = function() {
 
 			// Ищем есть ли она в строчке с нажатыми клавишами
 			for (var i = 0; i < keyMax; i++) {
+				//yes = ~quiz.indexOf(selectedIde[hotkeyRand].shortcat[i]);
 				yes = ~quiz.indexOf(selectedIde[hotkeyRand].shortcat[i]);
 
 				// Если клавиши нет, прекращаем проверку
@@ -144,7 +154,11 @@ window.onload = function() {
 					' / ' + (++total);
 			}
 		}
+		evt.preventDefault();
 	};
+
+	// Запускаем проверку набранного шортката
+	window.document.onkeydown = checkShortcat;
 
 	// Реализация выхода из игры
 	window.document.onkeyup = function gameOver(evt) {
