@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+
+	<!-- подключаем стили Mocha, для отображения результатов -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.1.0/mocha.css">
+	<!-- подключаем библиотеку Mocha -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.1.0/mocha.js"></script>
+	<!-- настраиваем Mocha: предстоит BDD-тестирование -->
+	<script>
+		mocha.setup('bdd');
+	</script>
+
+	<!-- подключаем chai -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/chai/2.0.0/chai.js"></script>
+
+	<!-- в chai есть много всего, выносим assert в глобальную область -->
+	<script>
+		var assert = chai.assert;
+		var expect = chai.expect;
+		var should = chai.should();
+	</script>
+
+	<!-- У chai есть плагины для тестирования dom -->
+	<script src="../vendor/chai-dom-master/chai-dom.js"></script>
+</head>
+
+<body>
+		<div class="playground">
+			<output class="quiz-area" id="quiz-box"></output>
+			<output class="result-area" id="result-box"></output>
+		</div>
+
+		<select class="ide-selection" name="ide-selection" id="ide-selection">
+			<option disabled>Выберите IDE</option>
+			<option value="ide_1" selected>Atom</option>
+			<option value="ide_2">Sublime</option>
+		</select>
+
+	<!-- Файл с тестируемыми скриптами (Скрипт Shortcat Trainer) -->
+	<script src="../app/js/script.js"></script>
+
+	<!-- в этом скрипте находятся спеки (Пример от Кантора) -->
+	<script src="test.js"></script>
+
+	<!-- в элементе с id="mocha" будут результаты тестов -->
+	<div id="mocha"></div>
+
+	<!-- запустить тесты! -->
+	<script>
+		mocha.run();
+	</script>
+
+</body>
+
+</html>

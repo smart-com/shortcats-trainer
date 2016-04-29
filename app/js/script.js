@@ -3,6 +3,7 @@
  * @summary Пространство имен для приложения
  * @listen window:onload
  * See {@tutorial readMe}
+ * @return { Object } Пока что эта штука используется только для тестов...
  */
 var playShortcats = function() {
 
@@ -221,6 +222,8 @@ var playShortcats = function() {
 
 			// Устанавливаем случайный шорткат при помощи случайного индекса
 			this.randomShortcat = this.currentIde[ randomIndex ];
+
+			//return randomIndex;
 		};
 
 		/**
@@ -241,6 +244,8 @@ var playShortcats = function() {
 
 		/**
 		 * @param  {Object} event Событие нажатия клавиши
+		 * @todo Хоть эта функция и лучше, чем была, но она мне все равно не нравится
+		 *       Она какая-то кривая, много всего проверяет и под тесты не ложится...
 		 */
 		this.checkShortcat = function( event ) {
 			// Еще одна проверка
@@ -426,13 +431,19 @@ var playShortcats = function() {
 		if ( quiz.gameStatus ) {
 			// Проверяем текущий шорткат
 			quiz.checkShortcat( event );
+			// Запускаем тесты
+			runTests();
 		// Иначе просто выходим ( ждем следующего нажатия )
 		} else {
-			console.dir( 'KEYUP-LISTENER STOP LISTEN...' );
 			return;
 		}
-		console.dir( 'KEYUP-LISTENER STOP LISTEN...' );
 	};
+
+	var runTests = function() {
+		var mochaDiv = document.getElementById( 'mocha');
+		mochaDiv.innerHTML = '';
+		mocha.run();
+	}
 
 	// keydown с запрещенным автоповтором
 	window.document.addEventListener( 'keydown', forbidRepetition );
@@ -443,7 +454,20 @@ var playShortcats = function() {
 	// Смена текущей IDE
 	html.select.addEventListener( 'change', function( event ) {
 		quiz = app.quizInit();
+		runTests();
 	});
+
+	/**
+	 * @summary Фейковый объект для тестов
+	 * @type {Object}
+	 */
+	return {
+		app: app,
+		html: app.htmlInit( 'ide-selection', 'quiz-box', 'result-box' ),
+		editors: app.editorsInit( atom, sublime ),
+		//quiz: new Quiz()
+		quiz: Quiz
+	};
 };
 
 // Запуск приложения
