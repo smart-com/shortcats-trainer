@@ -1,18 +1,22 @@
 body {
-	height: 100vh;
 	min-width: 475px;
 	margin: 0;
 	font-family: 'Galindo', Arial, sans-serif;
 	background: #DADBDC url(http://subtlepatterns2015.subtlepatterns.netdna-cdn.com/patterns/45degreee_fabric.png);
 }
 
-body,
+main,
 .result-area,
 .quiz-area {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	flex-direction: column;
+}
+
+main {
+	position: relative;
+	height: 100vh;
 }
 
 .playground {
@@ -45,7 +49,33 @@ body,
 }
 
 .quiz-area {
+	/**
+	 * Лида, 2016.05.19: Клавиши в output.quiz-area обернуты спанами,
+	 * чтобы их можно было подсветить в случае ошибочного нажатия
+	 */
+	flex-direction: row;
 	font-size: 2rem;
+}
+
+/**
+ * Лида, 2016.05.19: Клавиши в output.quiz-area обернуты спанами,
+ * чтобы их можно было подсветить в случае ошибочного нажатия
+ */
+.quiz-area span:not(:last-child) {
+	position: relative;
+	display: inline-block;
+	vertical-align: baseline;
+	margin-right: 1em;
+}
+.quiz-area .error {
+	outline: 1px dashed;
+}
+.quiz-area span:not(:last-child)::before {
+	content: '+';
+	position: absolute;
+	left: 100%;
+	width: 1em;
+	text-align: center;
 }
 
 .ide-selection {
