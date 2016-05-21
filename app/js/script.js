@@ -79,6 +79,7 @@ var playShortcats = function() {
 	 * @property {Method} quizInit    Создает экземпляр викторины
 	 *                                и инициализирует его значениями
 	 * @property {Method} quizOver    Выход из игры
+	 * @property {Method} clearQuiz   Очищает результаты перед следующей проверкой
 	 */
 	var app = {
 
@@ -111,7 +112,7 @@ var playShortcats = function() {
 		 * @method htmlInit
 		 * @param  {String} select_id      Идентификатор селекта для выбора IDE
 		 * @param  {String} quizArea_id    Идентификатор поля для вывода описаний шорткатов
-		 * @param  {String} select_id      Идентификатор вывода результатов тестирования
+		 * @param  {String} resultArea_id  Идентификатор вывода результатов тестирования
 		 * @return {Object}                Объект со свойствами, каждое из которых
 		 *                                 отдельный HTML-элемент
 		 */
@@ -160,6 +161,19 @@ var playShortcats = function() {
 				// Меняем статус игры / Снимаем все обработчики
 				quiz.gameStatus = false;
 			}
+		},
+
+		// Лида, 2016.05.03: метод clearQuiz из Quiz перенесен в app
+		clearQuiz: function() {
+			// Игра продолжается
+			yes = true;
+			app.counter = 0;
+			this.userInput = '';
+			/**
+			 * Лида, 2016.05.19: Клавиши в output.quiz-area обернуты спанами,
+			 * чтобы их можно было подсветить в случае ошибочного нажатия
+			 */
+			document.getElementById('quiz-box').innerHTML = "";
 		}
 	};
 
@@ -177,7 +191,6 @@ var playShortcats = function() {
 	 * @property {Method}    setCurrentIde         Устанавливает текущую IDE
 	 * @property {Method}    setRandomShortkat     Устанавливает случайный шорткат
 	 * @property {Method}    showQuestion          Выводим описание случайного шортката в HTML
-	 * @property {Method}    clearQuiz             Очищает результаты перед следующей проверкой
 	 * @property {Method}    showWin               Выводит в HTML положительный результат проверки
 	 *                                             и изменяет значения счетчиков
 	 * @property {Method}    showLoose             Выводит в HTML отрицательный результат
@@ -215,7 +228,7 @@ var playShortcats = function() {
 				// Минимальная граница диапазона
 				var min = 0;
 				return Math.floor( Math.random() * ( arrayLength - min + 1 ) ) + min;
-			};
+			}
 
 			// Случайный индекс для выбора шортката
 			var randomIndex = getRand( this.currentIde.length - 1 );
@@ -227,20 +240,47 @@ var playShortcats = function() {
 		};
 
 		/**
-		 * @param  {Object} htmlOutput Поле для вывода описания шортката
+		 * @param    {Object} htmlOutput  Поле для вывода описания шортката
+		 * @property {Array}  description Массив с клавишами вроде ["Ctrl", "S"]
+		 * @property {Method} createSpan  Создает тег span, кладет в него содержимое
+		 *                                элемента массива и возвращает этот тег
 		 * @todo  Извлечь метод и перенести его в html или в app?..
 		 */
 		this.showQuestion = function( htmlOutput ) {
-			htmlOutput.value = this.randomShortcat.description;
+			/**
+			 * Лида, 2016.05.19: Клавиши в output.quiz-area обернуты спанами,
+			 * чтобы их можно было подсветить в случае ошибочного нажатия
+			 * Было:
+			 * htmlOutput.value = this.randomShortcat.description;
+			 */
+
+			// массив с клавишами вроде ["Ctrl", "S"]
+			var description = this.randomShortcat.description.split(" + ");
+
+			// каждую клавишу обернуть span'ом и положить в output.quiz-area
+			description.forEach(function(key) {
+				htmlOutput.appendChild(createSpan(key));
+			});
+
+			// создает тег span, кладет в него содержимое элемента массива и возвращает этот тег
+			function createSpan(arrayItem) {
+				var span = document.createElement("span");
+				span.innerHTML = arrayItem;
+				return span;
+			}
 		};
 
 		/** @todo  Извлечь метод и перенести его в app */
-		this.clearQuiz = function() {
-			// Игра продолжается
-			yes = true;
-			app.counter = 0;
-			this.userInput = '';
-		};
+		/**
+		 * Лида, 2016.05.03: метод clearQuiz из Quiz перенесен в app
+		 * Было:
+		 * this.clearQuiz = function() {
+     *   // Игра продолжается
+     *   yes = true;
+     *   app.counter = 0;
+     *   this.userInput = '';
+     * };
+		 */
 
 		/**
 		 * @param  {Object} event Событие нажатия клавиши
@@ -267,7 +307,13 @@ var playShortcats = function() {
 				 * @todo  Подсветить нажатую клавишу в описании шортката,
 				 *        чтобы было видно сколько клавиш нажал пользователь
 				 */
-				console.log( 'ОШИБОЧНОЕ НАЖАТИЕ!!!' );
+				 /**
+ 				 * Лида, 2016.05.19: Клавиши в output.quiz-area обернуты спанами,
+ 				 * чтобы их можно было подсветить в случае ошибочного нажатия
+				 * Было:
+				 * console.log( 'ОШИБОЧНОЕ НАЖАТИЕ!!!' );
+ 				 */
+				document.getElementById("quiz-box").children[app.counter - 1].className = 'error';
 			}
 
 			// Если было нажато столько же клавиш, сколько есть в проверяемом шорткате ...
@@ -286,7 +332,11 @@ var playShortcats = function() {
 					this.showLoose();
 				}
 				// Очищаем результаты перед проверкой следующего шортката
-				this.clearQuiz();
+				/**
+				 * Лида, 2016.05.03: метод clearQuiz из Quiz перенесен в app
+				 * Было: this.clearQuiz();
+				 */
+				app.clearQuiz.call(this);
 				// Устанавливаем следующий случайный шорткат
 				quiz.setRandomShortkat();
 				// Вывадим его описание в HTML
@@ -327,7 +377,7 @@ var playShortcats = function() {
 			} else if (this.currentResult === 0) {
 				html.resultArea.value = 'Oooops :(';
 			}
-		}
+		};
 	};
 
 	// Запуск приложения
@@ -425,7 +475,7 @@ var playShortcats = function() {
 		// Если была нажата Enter ...
 		if ( event.keyCode === +hotkeys.enter ) {
 			// Игра окончена
-			app.quizOver( event);
+			app.quizOver( event );
 		}
 		// Если игра продолжается ...
 		if ( quiz.gameStatus ) {
@@ -443,7 +493,7 @@ var playShortcats = function() {
 		var mochaDiv = document.getElementById( 'mocha');
 		mochaDiv.innerHTML = '';
 		mocha.run();
-	}
+	};
 
 	// keydown с запрещенным автоповтором
 	window.document.addEventListener( 'keydown', forbidRepetition );
