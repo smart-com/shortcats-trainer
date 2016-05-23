@@ -49,26 +49,26 @@ main {
 }
 
 .quiz-area {
-	/**
-	 * Лида, 2016.05.19: Клавиши в output.quiz-area обернуты спанами,
-	 * чтобы их можно было подсветить в случае ошибочного нажатия
-	 */
+	/* Лида, 2016.05.19: реализована подсветка клавиш при ошибочном нажатии. */
 	flex-direction: row;
 	font-size: 2rem;
 }
 
-/**
- * Лида, 2016.05.19: Клавиши в output.quiz-area обернуты спанами,
- * чтобы их можно было подсветить в случае ошибочного нажатия
- */
+/* Лида, 2016.05.19: реализована подсветка клавиш при ошибочном нажатии. */
 .quiz-area span:not(:last-child) {
 	position: relative;
 	display: inline-block;
 	vertical-align: baseline;
 	margin-right: 1em;
 }
+/* Лида, 2016.05.23: реализована подсветка клавиш при правильном нажатии. */
+.quiz-area .success {
+	background-color: rgba(97, 232, 171, .3);
+	outline: 2px dashed rgb(97, 232, 171);
+}
 .quiz-area .error {
-	outline: 1px dashed;
+	background-color: rgba(165, 40, 40, .3);
+	outline: 2px dashed;
 }
 .quiz-area span:not(:last-child)::before {
 	content: '+';

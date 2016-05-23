@@ -168,12 +168,12 @@ var playShortcats = function() {
 			// Игра продолжается
 			yes = true;
 			app.counter = 0;
-			this.userInput = '';
-			/**
-			 * Лида, 2016.05.19: Клавиши в output.quiz-area обернуты спанами,
-			 * чтобы их можно было подсветить в случае ошибочного нажатия
-			 */
-			document.getElementById('quiz-box').innerHTML = "";
+			// Лида, 2016.05.23: реализована подсветка клавиш при правильном нажатии.
+			// Было:
+			// this.userInput = '';
+			this.userInput = [];
+			// Лида, 2016.05.19: реализована подсветка клавиш при ошибочном нажатии.
+			html.quizArea.innerHTML = "";
 		}
 	};
 
@@ -206,7 +206,10 @@ var playShortcats = function() {
 		this.gameStatus = true;
 		this.currentIde = {};
 		this.randomShortcat = '';
-		this.userInput = '';
+		// Лида, 2016.05.23: реализована подсветка клавиш при правильном нажатии.
+		// Было:
+		// this.userInput = '';
+		this.userInput = [];
 		this.totalResult = 0;
 		this.currentResult = 0;
 
@@ -248,8 +251,7 @@ var playShortcats = function() {
 		 */
 		this.showQuestion = function( htmlOutput ) {
 			/**
-			 * Лида, 2016.05.19: Клавиши в output.quiz-area обернуты спанами,
-			 * чтобы их можно было подсветить в случае ошибочного нажатия
+			 * Лида, 2016.05.19: реализована подсветка клавиш при ошибочном нажатии.
 			 * Было:
 			 * htmlOutput.value = this.randomShortcat.description;
 			 */
@@ -263,9 +265,9 @@ var playShortcats = function() {
 			});
 
 			// создает тег span, кладет в него содержимое элемента массива и возвращает этот тег
-			function createSpan(arrayItem) {
+			function createSpan(key) {
 				var span = document.createElement("span");
-				span.innerHTML = arrayItem;
+				span.innerHTML = key;
 				return span;
 			}
 		};
@@ -291,16 +293,25 @@ var playShortcats = function() {
 			// Еще одна проверка
 			app.counter++;
 			// Запоминаем нажатую клавишу
-			this.userInput += event.keyCode;
+			// Лида, 2016.05.23: реализована подсветка клавиш при правильном нажатии.
+			// Было:
+			// this.userInput += event.keyCode;
+			this.userInput.push( event.keyCode );
+
 			// Преобразовываем в строку массив случайного шортката и запоминаем
 			var randomShortcat = this.randomShortcat.keys.join( '' );
 			// Предполагаем, что проверка не прошла
 			var checkResult = false;
 
 			// Если в строке случайного шортката есть нажатая клавиша ...
-			if( randomShortcat.indexOf( this.userInput ) + 1 ) {
+			// Лида, 2016.05.23: реализована подсветка клавиш при правильном нажатии.
+			// Было:
+			// if ( randomShortcat.indexOf( this.userInput ) + 1 ) {
+			if ( this.userInput[app.counter - 1] === +this.randomShortcat.keys[app.counter - 1] ) {
 				// Значит нажата верная клавиша
 				checkResult = true;
+				// Лида, 2016.05.23: реализована подсветка клавиш при правильном нажатии.
+				html.quizArea.children[app.counter - 1].className = 'success';
 			}
 			else {
 				/**
@@ -308,19 +319,21 @@ var playShortcats = function() {
 				 *        чтобы было видно сколько клавиш нажал пользователь
 				 */
 				 /**
- 				 * Лида, 2016.05.19: Клавиши в output.quiz-area обернуты спанами,
- 				 * чтобы их можно было подсветить в случае ошибочного нажатия
+ 				 * Лида, 2016.05.19: реализована подсветка клавиш при ошибочном нажатии.
 				 * Было:
 				 * console.log( 'ОШИБОЧНОЕ НАЖАТИЕ!!!' );
  				 */
-				document.getElementById("quiz-box").children[app.counter - 1].className = 'error';
+				html.quizArea.children[app.counter - 1].className = 'error';
 			}
 
 			// Если было нажато столько же клавиш, сколько есть в проверяемом шорткате ...
 			if( app.counter === this.randomShortcat.keys.length ) {
 
 				// ...и если последняя нажатая клавиша есть в случайном шорткате ...
-				if( this.userInput === this.randomShortcat.keys.join( '' ) ) {
+				// Лида, 2016.05.23: реализована подсветка клавиш при правильном нажатии.
+				// Было:
+				// if( this.userInput === this.randomShortcat.keys.join( '' ) ) {
+				if( this.userInput.join( '' ) === this.randomShortcat.keys.join( '' ) ) {
 					// ... значит шорткат верен
 					if( checkResult === true ) {
 						// Показываем пользователю положительный результат
@@ -503,6 +516,8 @@ var playShortcats = function() {
 
 	// Смена текущей IDE
 	html.select.addEventListener( 'change', function( event ) {
+		// Лида, 2016.05.23: реализована подсветка клавиш при правильном нажатии.
+		app.clearQuiz.call(Quiz);
 		quiz = app.quizInit();
 		runTests();
 	});
