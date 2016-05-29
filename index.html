@@ -22,9 +22,14 @@
 	<!-- Мои стили -->
 	<link rel="stylesheet" href="app/css/style.css">
 	<link href='https://fonts.googleapis.com/css?family=Galindo&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+	<!-- 05.29 -->
+	<script src="https://cdn.polyfill.io/v2/polyfill.js?features=Node.prototype.contains,Element.prototype.after"></script>
 </head>
 
-	<body onkeydown="return false">
+	<!-- 05.28 -->
+	<!-- <body onkeydown="return false"> -->
+	<body>
 		<main>
 			<div class="playground">
 				<output class="quiz-area" id="quiz-box"></output>
@@ -36,6 +41,26 @@
 				<option value="ide_1" selected>Atom</option>
 				<option value="ide_2">Sublime</option>
 			</select>
+
+			<!-- 05.28 -->
+			<div class="panel" id="ide-addition-panel">
+				<div class="row">
+					<label for="ide-name">Введите название IDE:</label>
+					<input id="ide-name" name="ide-name" type="text">
+				</div>
+				<div class="row">
+					<span>Задайте клавиши:</span>
+					<input class="key-input" id="key-1" name="key-1" type="text" list="key-list">
+					<input class="key-input" id="key-2" name="key-2" type="text" list="key-list">
+					<button class="btn-add-key" type="button">Добавить клавишу</button>
+					<datalist id="key-list">
+						<option>Ctrl</option>
+						<option>Shift</option>
+						<option>Alt</option>
+					</datalist>
+				</div>
+				<button class="btn-add-ide" type="button">Добавить IDE</button>
+			</div>
 		</main>
 
 		<script src="app/js/script.js"></script>

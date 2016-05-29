@@ -98,3 +98,42 @@ main {
 		0 0 15px 7px rgba(224, 0, 0, .6);
 	outline: none;
 }
+
+/* 05.28 */
+
+.panel {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+}
+
+.row {
+	font-size: 0;
+}
+.row > * {
+	font-size: 1rem;
+}
+.row :first-child {
+	display: inline-block;
+	vertical-align: baseline;
+	min-width: 175px;
+	margin-right: 10px;
+	text-align: right;
+}
+
+.empty {
+	background-color: rgba(165, 40, 40, .3);
+	border-color: rgb(165, 40, 40);
+}
+.key-input {
+	width: 75px;
+}
+
+.btn-add-key {
+	font-size: 0;
+}
+.btn-add-key:before {
+	content: "+";
+	font-size: 1rem;
+}

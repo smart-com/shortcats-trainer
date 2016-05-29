@@ -124,7 +124,7 @@ var playShortcats = function() {
 				/** @property {Object} quizArea     Поле для вывода описания для шорткатов */
 				quizArea: document.getElementById( quizArea_id ),
 				/** @property {Object} resultArea   Поле для вывода результатов тестирования */
-				resultArea: document.getElementById( resultArea_id )
+				resultArea: document.getElementById( resultArea_id ),
 			};
 		},
 
@@ -169,8 +169,6 @@ var playShortcats = function() {
 			yes = true;
 			app.counter = 0;
 			// Лида, 2016.05.23: реализована подсветка клавиш при правильном нажатии.
-			// Было:
-			// this.userInput = '';
 			this.userInput = [];
 			// Лида, 2016.05.19: реализована подсветка клавиш при ошибочном нажатии.
 			html.quizArea.innerHTML = "";
@@ -207,8 +205,6 @@ var playShortcats = function() {
 		this.currentIde = {};
 		this.randomShortcat = '';
 		// Лида, 2016.05.23: реализована подсветка клавиш при правильном нажатии.
-		// Было:
-		// this.userInput = '';
 		this.userInput = [];
 		this.totalResult = 0;
 		this.currentResult = 0;
@@ -250,11 +246,7 @@ var playShortcats = function() {
 		 * @todo  Извлечь метод и перенести его в html или в app?..
 		 */
 		this.showQuestion = function( htmlOutput ) {
-			/**
-			 * Лида, 2016.05.19: реализована подсветка клавиш при ошибочном нажатии.
-			 * Было:
-			 * htmlOutput.value = this.randomShortcat.description;
-			 */
+			// Лида, 2016.05.19: реализована подсветка клавиш при ошибочном нажатии.
 
 			// массив с клавишами вроде ["Ctrl", "S"]
 			var description = this.randomShortcat.description.split(" + ");
@@ -273,16 +265,7 @@ var playShortcats = function() {
 		};
 
 		/** @todo  Извлечь метод и перенести его в app */
-		/**
-		 * Лида, 2016.05.03: метод clearQuiz из Quiz перенесен в app
-		 * Было:
-		 * this.clearQuiz = function() {
-     *   // Игра продолжается
-     *   yes = true;
-     *   app.counter = 0;
-     *   this.userInput = '';
-     * };
-		 */
+		// Лида, 2016.05.03: метод clearQuiz из Quiz перенесен в app
 
 		/**
 		 * @param  {Object} event Событие нажатия клавиши
@@ -294,8 +277,6 @@ var playShortcats = function() {
 			app.counter++;
 			// Запоминаем нажатую клавишу
 			// Лида, 2016.05.23: реализована подсветка клавиш при правильном нажатии.
-			// Было:
-			// this.userInput += event.keyCode;
 			this.userInput.push( event.keyCode );
 
 			// Преобразовываем в строку массив случайного шортката и запоминаем
@@ -305,8 +286,6 @@ var playShortcats = function() {
 
 			// Если в строке случайного шортката есть нажатая клавиша ...
 			// Лида, 2016.05.23: реализована подсветка клавиш при правильном нажатии.
-			// Было:
-			// if ( randomShortcat.indexOf( this.userInput ) + 1 ) {
 			if ( this.userInput[app.counter - 1] === +this.randomShortcat.keys[app.counter - 1] ) {
 				// Значит нажата верная клавиша
 				checkResult = true;
@@ -318,11 +297,7 @@ var playShortcats = function() {
 				 * @todo  Подсветить нажатую клавишу в описании шортката,
 				 *        чтобы было видно сколько клавиш нажал пользователь
 				 */
-				 /**
- 				 * Лида, 2016.05.19: реализована подсветка клавиш при ошибочном нажатии.
-				 * Было:
-				 * console.log( 'ОШИБОЧНОЕ НАЖАТИЕ!!!' );
- 				 */
+				 // Лида, 2016.05.19: реализована подсветка клавиш при ошибочном нажатии.
 				html.quizArea.children[app.counter - 1].className = 'error';
 			}
 
@@ -331,8 +306,6 @@ var playShortcats = function() {
 
 				// ...и если последняя нажатая клавиша есть в случайном шорткате ...
 				// Лида, 2016.05.23: реализована подсветка клавиш при правильном нажатии.
-				// Было:
-				// if( this.userInput === this.randomShortcat.keys.join( '' ) ) {
 				if( this.userInput.join( '' ) === this.randomShortcat.keys.join( '' ) ) {
 					// ... значит шорткат верен
 					if( checkResult === true ) {
@@ -345,10 +318,7 @@ var playShortcats = function() {
 					this.showLoose();
 				}
 				// Очищаем результаты перед проверкой следующего шортката
-				/**
-				 * Лида, 2016.05.03: метод clearQuiz из Quiz перенесен в app
-				 * Было: this.clearQuiz();
-				 */
+				// Лида, 2016.05.03: метод clearQuiz из Quiz перенесен в app
 				app.clearQuiz.call(this);
 				// Устанавливаем следующий случайный шорткат
 				quiz.setRandomShortkat();
@@ -509,10 +479,17 @@ var playShortcats = function() {
 	};
 
 	// keydown с запрещенным автоповтором
-	window.document.addEventListener( 'keydown', forbidRepetition );
+	// 05.28
+	// window.document.addEventListener( 'keydown', forbidRepetition );
+	window.document.addEventListener( 'keydown', onKeydown );
+	function onKeydown( event ) {
+		// полифилл пока подключен в head
+		if ( ideAdditionPanel.contains( event.target ) ) return true;
+		else forbidRepetition( event );
+	}
 
 	// Реализация выхода из игры
-	window.document.addEventListener( 'keydown', forbidRepetition );
+	// window.document.addEventListener( 'keydown', forbidRepetition );
 
 	// Смена текущей IDE
 	html.select.addEventListener( 'change', function( event ) {
@@ -521,6 +498,120 @@ var playShortcats = function() {
 		quiz = app.quizInit();
 		runTests();
 	});
+
+
+
+	// 05.29
+	// поместила именно сюда просто чтобы работало
+	var ideAdditionPanel = document.getElementById( 'ide-addition-panel' );
+	var ideNameInput = ideAdditionPanel.querySelector( '[name="ide-name"]' );
+	var keyInputs = ideAdditionPanel.querySelectorAll( '.key-input' );
+	var addKeyBtn = ideAdditionPanel.querySelector( '.btn-add-key' );
+	var addIdeBtn = ideAdditionPanel.querySelector( '.btn-add-ide' );
+
+	ideAdditionPanel.onclick = function( event ) {
+		if ( event.target === addKeyBtn ) {
+			addInput();
+		} else if ( event.target === addIdeBtn ) {
+			if ( ideNameInput.value && checkKeyInputs() ) createUserIde();
+			else highlightEmptyInputs();
+		}
+	};
+
+	ideAdditionPanel.addEventListener( 'focus', function( event ) {
+		if ( event.target.classList.contains( 'empty' ) )
+			event.target.classList.remove( 'empty' );
+	}, true );
+
+	function addInput () {
+		var input = document.createElement( 'input' );
+		input.className = 'key-input';
+
+		var inputNumber = keyInputs.length + 1;
+		input.setAttribute( 'id', 'key-' + inputNumber );
+		input.setAttribute( 'name', 'key-' + inputNumber );
+
+		input.setAttribute( 'type', 'text' );
+		input.setAttribute( 'list', 'key-list' );
+
+		var lastInput = keyInputs[keyInputs.length - 1];
+		// полифилл пока подключен в head
+		lastInput.after( input );
+
+		keyInputs = ideAdditionPanel.querySelectorAll( '.key-input' );
+	}
+
+	function pickIdeData() {
+		// получить название IDE
+		var ideName = ideNameInput.value.toLowerCase();
+
+		// получить клавиши
+		var keys = [];
+		Array.prototype.forEach.call( keyInputs, function( keyInput ) {
+			keys.push( keyInput.value.toLowerCase() );
+		} );
+
+		var ideData = [ideName, keys];
+		return ideData;
+	}
+
+	function checkKeyInputs() {
+		var check = Array.prototype.every.call( keyInputs, function( keyInput ) {
+			if ( keyInput.value ) return true;
+		} );
+
+		return check ? true : false;
+	}
+
+	function highlightEmptyInputs() {
+		var allInputs = ideAdditionPanel.getElementsByTagName( "INPUT" );
+		var emptyInputs = Array.prototype.filter.call( allInputs, function( keyInput ) {
+			if ( !keyInput.value ) return true;
+		} );
+		Array.prototype.forEach.call( emptyInputs, function( emptyInput ) {
+			emptyInput.classList.add( "empty" );
+		} );
+	}
+
+	function createUserIde() {
+		var ideData = pickIdeData();
+		var ideName = ideData[0];
+		var ideKeys = ideData[1];
+
+		var description = '';
+		ideKeys.map( function( key ) {
+			var subString = key.slice( 0, 1 ).toUpperCase() + key.slice( 1 );
+			if ( description === '' ) {
+				description += subString;
+			} else {
+				description += ' + ' + subString;
+			}
+		} );
+
+		var keys = [];
+		ideKeys.map( function( key ) {
+			keys.push( hotkeys[key] );
+		} );
+
+		var value = [{
+			'description': description,
+			'keys': keys
+		}];
+		value = JSON.stringify( value );
+
+		localStorage.setItem( ideName, value );
+		editors.push( JSON.parse( localStorage.getItem( ideName ) ) );
+		addSelectOption( ideName );
+	}
+
+	function addSelectOption(ideName) {
+		var option = document.createElement( 'option' );
+		option.innerHTML = ideName.slice( 0, 1 ).toUpperCase() + ideName.slice( 1 );
+		option.setAttribute( 'value', ideName );
+		html.select.appendChild( option );
+	}
+
+
 
 	/**
 	 * @summary Фейковый объект для тестов
