@@ -103,23 +103,29 @@ main {
 
 .panel {
 	position: absolute;
-	right: 0;
-	bottom: 0;
+	top: 0;
 	left: 0;
+	padding: 20px;
 }
 
 .row {
-	font-size: 0;
+	display: flex;
 }
-.row > * {
-	font-size: 1rem;
-}
-.row :first-child {
+
+.row > :first-child {
 	display: inline-block;
 	vertical-align: baseline;
 	min-width: 175px;
 	margin-right: 10px;
 	text-align: right;
+}
+
+.group {
+	font-size: 0;
+}
+
+.group > * {
+	font-size: 1rem;
 }
 
 .empty {
@@ -130,10 +136,24 @@ main {
 	width: 75px;
 }
 
-.btn-add-key {
+.group [class^='btn-'] {
 	font-size: 0;
+}
+.group [class^='btn-']:before {
+	font-size: 1rem;
+}
+.btn-remove-key:before {
+	content: "-";
 }
 .btn-add-key:before {
 	content: "+";
-	font-size: 1rem;
+}
+.btn-remove-group:before {
+	content: "×";
+}
+
+.dialog {
+	display: inline-block;
+	vertical-align: top;
+	width: 100%;
 }

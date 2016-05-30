@@ -24,7 +24,7 @@
 	<link href='https://fonts.googleapis.com/css?family=Galindo&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
 
 	<!-- 05.29 -->
-	<script src="https://cdn.polyfill.io/v2/polyfill.js?features=Node.prototype.contains,Element.prototype.after"></script>
+	<script src="https://cdn.polyfill.io/v2/polyfill.js?features=Element.prototype.closest,Node.prototype.contains,Element.prototype.after"></script>
 </head>
 
 	<!-- 05.28 -->
@@ -49,17 +49,25 @@
 					<input id="ide-name" name="ide-name" type="text">
 				</div>
 				<div class="row">
-					<span>Задайте клавиши:</span>
-					<input class="key-input" id="key-1" name="key-1" type="text" list="key-list">
-					<input class="key-input" id="key-2" name="key-2" type="text" list="key-list">
-					<button class="btn-add-key" type="button">Добавить клавишу</button>
+					<span>Задайте шорткаты:</span>
+					<div class="groups">
+						<div class="group group-1">
+							<input class="key-input" id="key-1" name="key-1" type="text" list="key-list">
+							<input class="key-input" id="key-2" name="key-2" type="text" list="key-list">
+							<button class="btn-remove-key" type="button">Удалить клавишу</button>
+							<button class="btn-add-key" type="button">Добавить клавишу</button>
+							<button class="btn-remove-group" type="button" disabled>Удалить шорткат</button>
+						</div>
+					</div>
 					<datalist id="key-list">
 						<option>Ctrl</option>
 						<option>Shift</option>
 						<option>Alt</option>
 					</datalist>
 				</div>
+				<button class="btn-add-shortcut" type="button">Добавить шорткат</button>
 				<button class="btn-add-ide" type="button">Добавить IDE</button>
+				<output class="dialog"></output>
 			</div>
 		</main>
 

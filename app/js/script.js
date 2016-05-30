@@ -505,16 +505,29 @@ var playShortcats = function() {
 	// поместила именно сюда просто чтобы работало
 	var ideAdditionPanel = document.getElementById( 'ide-addition-panel' );
 	var ideNameInput = ideAdditionPanel.querySelector( '[name="ide-name"]' );
-	var keyInputs = ideAdditionPanel.querySelectorAll( '.key-input' );
-	var addKeyBtn = ideAdditionPanel.querySelector( '.btn-add-key' );
+	var addShortcutBtn = ideAdditionPanel.querySelector( '.btn-add-shortcut' );
 	var addIdeBtn = ideAdditionPanel.querySelector( '.btn-add-ide' );
+	var datalist = document.getElementById( 'key-list' );
+	var inputsGroupsContainer = ideAdditionPanel.querySelector( '.groups' );
+	var inputsGroups = inputsGroupsContainer.querySelectorAll( '.group' );
+	var dialog = ideAdditionPanel.querySelector( '.dialog' );
 
 	ideAdditionPanel.onclick = function( event ) {
-		if ( event.target === addKeyBtn ) {
-			addInput();
+		if ( event.target.className === 'btn-add-key' ) {
+			// полифилл пока подключен в head
+			addInput( event.target.closest( '.group' ) );
+		} else if ( event.target.className === 'btn-remove-key' ) {
+			removeInput( event.target.closest( '.group' ) );
+		} else if ( event.target.className === 'btn-remove-group' ) {
+			removeGroup( event.target.closest( '.group' ) );
+		} else if ( event.target === addShortcutBtn ) {
+			addGroup();
 		} else if ( event.target === addIdeBtn ) {
 			if ( ideNameInput.value && checkKeyInputs() ) createUserIde();
-			else highlightEmptyInputs();
+			else {
+				highlightEmptyInputs();
+				showMessage( 'Не поля заполнены.' );
+			}
 		}
 	};
 
@@ -523,42 +536,74 @@ var playShortcats = function() {
 			event.target.classList.remove( 'empty' );
 	}, true );
 
-	function addInput () {
+	function addInput(parent) {
+		var allInputs = parent.getElementsByTagName( 'INPUT' );
+		if ( allInputs.length >= 4 ) return;
+
 		var input = document.createElement( 'input' );
 		input.className = 'key-input';
 
-		var inputNumber = keyInputs.length + 1;
+		var inputNumber = allInputs.length + 1;
 		input.setAttribute( 'id', 'key-' + inputNumber );
 		input.setAttribute( 'name', 'key-' + inputNumber );
 
 		input.setAttribute( 'type', 'text' );
 		input.setAttribute( 'list', 'key-list' );
 
-		var lastInput = keyInputs[keyInputs.length - 1];
+		var lastInput = allInputs[allInputs.length - 1] || null;
 		// полифилл пока подключен в head
-		lastInput.after( input );
+		if ( lastInput ) lastInput.after( input );
+		else {
+			// если в группе есть кнопки, добавить инпут в начало группы
+			if ( parent.innerHTML ) parent.insertAdjacentElement( 'afterBegin', input );
+			// если в группе даже кнопок нет, просто добавить инпут
+			else parent.appendChild( input );
+		}
 
-		keyInputs = ideAdditionPanel.querySelectorAll( '.key-input' );
+		if ( inputNumber >= 4 ) switchAddKeyBtn(false, parent);
+	}
+
+	function removeInput(parent) {
+		var inputs = parent.getElementsByTagName( 'INPUT' );
+
+		if ( inputs.length > 1 ) {
+			parent.removeChild( inputs[inputs.length - 1] );
+			switchAddKeyBtn(true, parent);
+		} else removeGroup( parent );
+	}
+
+	function switchAddKeyBtn(isEnabled, parent) {
+		if ( isEnabled ) parent.querySelector( '.btn-add-key' ).disabled = false;
+		else parent.querySelector( '.btn-add-key' ).disabled = true;
 	}
 
 	function pickIdeData() {
 		// получить название IDE
 		var ideName = ideNameInput.value.toLowerCase();
 
-		// получить клавиши
-		var keys = [];
-		Array.prototype.forEach.call( keyInputs, function( keyInput ) {
-			keys.push( keyInput.value.toLowerCase() );
-		} );
+		// получить шорткаты
+		var shortcuts = [];
+		Array.prototype.forEach.call( inputsGroups, function( group ) {
+			var keyInputs = group.getElementsByTagName( 'INPUT' );
 
-		var ideData = [ideName, keys];
+			// получить клавиши шортката
+			var keys = [];
+			Array.prototype.forEach.call( keyInputs, function( keyInput ) {
+				keys.push( keyInput.value.toLowerCase() );
+			});
+
+			shortcuts.push(keys);
+		});
+
+		var ideData = [ideName, shortcuts];
 		return ideData;
 	}
 
 	function checkKeyInputs() {
+		var keyInputs = ideAdditionPanel.getElementsByTagName( 'INPUT' );
 		var check = Array.prototype.every.call( keyInputs, function( keyInput ) {
 			if ( keyInput.value ) return true;
-		} );
+		});
 
 		return check ? true : false;
 	}
@@ -574,34 +619,39 @@ var playShortcats = function() {
 	}
 
 	function createUserIde() {
-		var ideData = pickIdeData();
-		var ideName = ideData[0];
-		var ideKeys = ideData[1];
+		var data = pickIdeData();
+		var ideName = data[0];
+		var shortcuts = data[1];
 
-		var description = '';
-		ideKeys.map( function( key ) {
-			var subString = key.slice( 0, 1 ).toUpperCase() + key.slice( 1 );
-			if ( description === '' ) {
-				description += subString;
-			} else {
-				description += ' + ' + subString;
-			}
-		} );
+		var processedShortcuts = [];
+		shortcuts.forEach( function( shortcut ) {
+			var description = '';
+			shortcut.forEach( function( key ) {
+				var subString = key.slice( 0, 1 ).toUpperCase() + key.slice( 1 );
+				if ( description === '' ) {
+					description += subString;
+				} else {
+					description += ' + ' + subString;
+				}
+			});
 
-		var keys = [];
-		ideKeys.map( function( key ) {
-			keys.push( hotkeys[key] );
-		} );
+			var keys = [];
+			shortcut.forEach( function( key ) {
+				keys.push( hotkeys[key] );
+			});
 
-		var value = [{
-			'description': description,
-			'keys': keys
-		}];
-		value = JSON.stringify( value );
+			var processedShortcut = {
+				'description': description,
+				'keys': keys
+			};
+			processedShortcuts.push(processedShortcut);
+		});
 
-		localStorage.setItem( ideName, value );
+		localStorage.setItem( ideName, JSON.stringify( processedShortcuts ) );
 		editors.push( JSON.parse( localStorage.getItem( ideName ) ) );
 		addSelectOption( ideName );
+		resetInputs();
+		showMessage( 'Добавлена новая IDE - ' + ideName.slice( 0, 1 ).toUpperCase() + ideName.slice( 1 ) );
 	}
 
 	function addSelectOption(ideName) {
@@ -609,6 +659,81 @@ var playShortcats = function() {
 		option.innerHTML = ideName.slice( 0, 1 ).toUpperCase() + ideName.slice( 1 );
 		option.setAttribute( 'value', ideName );
 		html.select.appendChild( option );
+	}
+
+	// 05.30
+	// заполняет datalist опциями
+	function fillDatalist() {
+		// если в datalist есть опции - убрать
+		if ( datalist.innerHTML ) datalist.innerHTML = '';
+
+		for ( var key in hotkeys ) {
+			var option = createOption();
+			option.innerHTML = key.slice( 0, 1 ).toUpperCase() + key.slice( 1 );
+		}
+	}
+	fillDatalist();
+
+	function createOption() {
+		var option = document.createElement( 'option' );
+		datalist.appendChild( option );
+		return option;
+	}
+
+	function addGroup() {
+		var group = document.createElement( 'div' );
+
+		var groupNumber = inputsGroups.length + 1;
+		group.className = "group group-" + groupNumber;
+
+		addInput( group );
+		addInput( group );
+		addBtn( group, 'btn-remove-key', 'Удалить клавишу' );
+		addBtn( group, 'btn-add-key', 'Добавить клавишу' );
+		addBtn( group, 'btn-remove-group', 'Удалить шорткат' );
+
+		inputsGroupsContainer.appendChild( group );
+
+		inputsGroups = ideAdditionPanel.querySelectorAll( '.group' );
+		var disabledRemoveGroupBtn = ideAdditionPanel.querySelector( '.btn-remove-group:disabled' );
+		if (disabledRemoveGroupBtn) disabledRemoveGroupBtn.disabled = false;
+	}
+
+	function removeGroup( group ) {
+		if ( group.parentNode.children.length > 2 ) {
+			group.parentNode.removeChild( group );
+			inputsGroups = ideAdditionPanel.querySelectorAll( '.group' );
+		} else if ( group.parentNode.children.length === 2 ) {
+			if ( group !== group.parentNode.firstElementChild )
+				group.parentNode.firstElementChild.querySelector( '.btn-remove-group' ).disabled = true;
+			else
+				group.parentNode.lastElementChild.querySelector( '.btn-remove-group' ).disabled = true;
+			group.parentNode.removeChild( group );
+			inputsGroups = ideAdditionPanel.querySelectorAll( '.group' );
+		} else {
+			group.querySelector( '.btn-remove-group' ).disabled = true;
+			return;
+		}
+	}
+
+	function addBtn(parent, btnClass, html) {
+		var addKeyBtn = document.createElement( 'button' );
+		addKeyBtn.className = btnClass;
+		addKeyBtn.setAttribute( 'type', 'button' );
+		addKeyBtn.innerHTML = html;
+
+		parent.appendChild( addKeyBtn );
+	}
+
+	function resetInputs() {
+		var allInputs = ideAdditionPanel.getElementsByTagName( 'INPUT' );
+		Array.prototype.forEach.call( allInputs, function( input ) {
+			input.value = "";
+		});
+	}
+
+	function showMessage( message ) {
+		dialog.innerHTML = message;
 	}
 
 
