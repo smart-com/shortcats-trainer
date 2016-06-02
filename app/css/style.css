@@ -136,19 +136,19 @@ main {
 	width: 75px;
 }
 
-.group [class^='btn-'] {
+.group .btn {
 	font-size: 0;
 }
-.group [class^='btn-']:before {
+.group .btn:before {
 	font-size: 1rem;
 }
-.btn-remove-key:before {
+.remove-key:before {
 	content: "-";
 }
-.btn-add-key:before {
+.add-key:before {
 	content: "+";
 }
-.btn-remove-group:before {
+.remove-group:before {
 	content: "×";
 }
 

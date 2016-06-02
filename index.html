@@ -51,12 +51,12 @@
 				<div class="row">
 					<span>Задайте шорткаты:</span>
 					<div class="groups">
-						<div class="group group-1">
-							<input class="key-input" id="key-1" name="key-1" type="text" list="key-list">
-							<input class="key-input" id="key-2" name="key-2" type="text" list="key-list">
-							<button class="btn-remove-key" type="button">Удалить клавишу</button>
-							<button class="btn-add-key" type="button">Добавить клавишу</button>
-							<button class="btn-remove-group" type="button" disabled>Удалить шорткат</button>
+						<div class="group">
+							<input class="key-input" name="key-1" type="text" list="key-list">
+							<input class="key-input" name="key-2" type="text" list="key-list">
+							<button class="btn remove-key" type="button">Удалить клавишу</button>
+							<button class="btn add-key" type="button">Добавить клавишу</button>
+							<button class="btn remove-group" type="button" disabled>Удалить шорткат</button>
 						</div>
 					</div>
 					<datalist id="key-list">
@@ -65,8 +65,8 @@
 						<option>Alt</option>
 					</datalist>
 				</div>
-				<button class="btn-add-shortcut" type="button">Добавить шорткат</button>
-				<button class="btn-add-ide" type="button">Добавить IDE</button>
+				<button class="btn add-shortcut" type="button">Добавить шорткат</button>
+				<button class="btn add-ide" type="button">Добавить IDE</button>
 				<output class="dialog"></output>
 			</div>
 		</main>

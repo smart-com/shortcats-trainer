@@ -249,16 +249,16 @@ var playShortcats = function() {
 			// Лида, 2016.05.19: реализована подсветка клавиш при ошибочном нажатии.
 
 			// массив с клавишами вроде ["Ctrl", "S"]
-			var description = this.randomShortcat.description.split(" + ");
+			var description = this.randomShortcat.description.split( ' + ' );
 
 			// каждую клавишу обернуть span'ом и положить в output.quiz-area
-			description.forEach(function(key) {
-				htmlOutput.appendChild(createSpan(key));
+			description.forEach( function( key ) {
+				htmlOutput.appendChild( createSpan( key ) );
 			});
 
 			// создает тег span, кладет в него содержимое элемента массива и возвращает этот тег
-			function createSpan(key) {
-				var span = document.createElement("span");
+			function createSpan( key ) {
+				var span = document.createElement( 'span' );
 				span.innerHTML = key;
 				return span;
 			}
@@ -319,7 +319,7 @@ var playShortcats = function() {
 				}
 				// Очищаем результаты перед проверкой следующего шортката
 				// Лида, 2016.05.03: метод clearQuiz из Quiz перенесен в app
-				app.clearQuiz.call(this);
+				app.clearQuiz.call( this );
 				// Устанавливаем следующий случайный шорткат
 				quiz.setRandomShortkat();
 				// Вывадим его описание в HTML
@@ -484,7 +484,7 @@ var playShortcats = function() {
 	window.document.addEventListener( 'keydown', onKeydown );
 	function onKeydown( event ) {
 		// полифилл пока подключен в head
-		if ( ideAdditionPanel.contains( event.target ) ) return true;
+		if ( additionPanel.contains( event.target ) ) return true;
 		else forbidRepetition( event );
 	}
 
@@ -503,131 +503,179 @@ var playShortcats = function() {
 
 	// 05.29
 	// поместила именно сюда просто чтобы работало
-	var ideAdditionPanel = document.getElementById( 'ide-addition-panel' );
-	var ideNameInput = ideAdditionPanel.querySelector( '[name="ide-name"]' );
-	var addShortcutBtn = ideAdditionPanel.querySelector( '.btn-add-shortcut' );
-	var addIdeBtn = ideAdditionPanel.querySelector( '.btn-add-ide' );
+	var additionPanel = document.getElementById( 'ide-addition-panel' );
+	var groupsContainer = additionPanel.querySelector( '.groups' );
+	var groups = groupsContainer.children;
 	var datalist = document.getElementById( 'key-list' );
-	var inputsGroupsContainer = ideAdditionPanel.querySelector( '.groups' );
-	var inputsGroups = inputsGroupsContainer.querySelectorAll( '.group' );
-	var dialog = ideAdditionPanel.querySelector( '.dialog' );
+	var dialog = additionPanel.querySelector( '.dialog' );
 
-	ideAdditionPanel.onclick = function( event ) {
-		if ( event.target.className === 'btn-add-key' ) {
+
+
+	additionPanel.onclick = function( event ) {
+		var target = event.target;
+
+		// если кликнули по кнопке '+' - добавить инпут для клавиши в соответствующую группу
+		if ( target.classList.contains( 'add-key' ) )
 			// полифилл пока подключен в head
-			addInput( event.target.closest( '.group' ) );
-		} else if ( event.target.className === 'btn-remove-key' ) {
-			removeInput( event.target.closest( '.group' ) );
-		} else if ( event.target.className === 'btn-remove-group' ) {
-			removeGroup( event.target.closest( '.group' ) );
-		} else if ( event.target === addShortcutBtn ) {
+			addInput( target.closest( '.group' ) );
+		// если кликнули по кнопке '-' - удалить инпут для клавиши в соответствующей группе
+		if ( target.classList.contains( 'remove-key' ) )
+			removeInput( target.closest( '.group' ) );
+
+		// если кликнули по кнопке 'добавить шорткат' - добавить группу с инпутами
+		if ( target.classList.contains( 'add-shortcut' ) )
 			addGroup();
-		} else if ( event.target === addIdeBtn ) {
-			if ( ideNameInput.value && checkKeyInputs() ) createUserIde();
-			else {
-				highlightEmptyInputs();
-				showMessage( 'Не поля заполнены.' );
-			}
+		// если кликнули по кнопке '×' - удалить соответствующую группу с инпутами
+		if ( target.classList.contains( 'remove-group' ) )
+			removeGroup( target.closest( '.group' ) );
+
+		// если кликнули по кнопке 'добавить IDE'...
+		if ( target.classList.contains( 'add-ide' ) ) {
+			// если все поля заполнены - сохранить IDE в локальном хранилище и добавить в игру
+			if ( checkInputs() ) addUserIde();
+			// иначе подсветить незаполненные поля
+			else highlightEmptyInputs();
 		}
 	};
 
-	ideAdditionPanel.addEventListener( 'focus', function( event ) {
+	// когда какой-нибудь инпут получает фокус и если он подсвечен как незаполненный,
+	// убрать подсветку
+	additionPanel.addEventListener( 'focus', function( event ) {
 		if ( event.target.classList.contains( 'empty' ) )
 			event.target.classList.remove( 'empty' );
 	}, true );
 
-	function addInput(parent) {
-		var allInputs = parent.getElementsByTagName( 'INPUT' );
-		if ( allInputs.length >= 4 ) return;
 
-		var input = document.createElement( 'input' );
-		input.className = 'key-input';
 
-		var inputNumber = allInputs.length + 1;
-		input.setAttribute( 'id', 'key-' + inputNumber );
-		input.setAttribute( 'name', 'key-' + inputNumber );
+	// создает новый инпут для ввода клавиши и добавляет его в div.group
+	function addInput( group ) {
+		// если инпутов в группе уже 4, ничего не делаем и возвращаемся
+		var allInputs = group.getElementsByTagName( 'INPUT' );
+		if ( allInputs.length === 4 ) return;
 
-		input.setAttribute( 'type', 'text' );
-		input.setAttribute( 'list', 'key-list' );
+		// задаем инпуту аттрибуты
+		var newInput = document.createElement( 'input' );
+		newInput.className = 'key-input';
+		var newInputNumber = allInputs.length + 1;
+		newInput.setAttribute( 'name', 'key-' + newInputNumber );
+		newInput.setAttribute( 'type', 'text' );
+		newInput.setAttribute( 'list', 'key-list' );
 
+		// вставляем инпут в группу
 		var lastInput = allInputs[allInputs.length - 1] || null;
+		// если в группе есть хотя бы 1 инпут, вставляем новый после него
 		// полифилл пока подключен в head
-		if ( lastInput ) lastInput.after( input );
-		else {
-			// если в группе есть кнопки, добавить инпут в начало группы
-			if ( parent.innerHTML ) parent.insertAdjacentElement( 'afterBegin', input );
-			// если в группе даже кнопок нет, просто добавить инпут
-			else parent.appendChild( input );
-		}
+		if ( lastInput ) lastInput.after( newInput );
+		// если в группе нет ни 1-о инпута, просто добавляем его
+		else group.appendChild( newInput );
 
-		if ( inputNumber >= 4 ) switchAddKeyBtn(false, parent);
+		// если это 4-й по счету инпут, блокируем кнопку .add-key
+		if ( newInputNumber === 4 ) enableBtn( group.querySelector( '.add-key' ), false );
+		// если кнопка .remove-key есть и она заблокирована - разблокировать
+		if ( group.querySelector( '.remove-key' ) && group.querySelector( '.remove-key' ).disabled === true )
+			enableBtn( group.querySelector( '.remove-key' ), true );
 	}
 
-	function removeInput(parent) {
-		var inputs = parent.getElementsByTagName( 'INPUT' );
+	// удаляет крайний правый инпут в div.group
+	function removeInput( group ) {
+		var allInputs = group.getElementsByTagName( 'INPUT' );
 
-		if ( inputs.length > 1 ) {
-			parent.removeChild( inputs[inputs.length - 1] );
-			switchAddKeyBtn(true, parent);
-		} else removeGroup( parent );
+		// если в группе 3 и > инпутов, удалить последний
+		// и разблокировать кнопку .add-key, если она заблокирована;
+		// если в группе 2 инпута - удалить последний и заблокировать кнопку .remove-key,
+		// иначе ничего не делать
+		if ( allInputs.length > 2 ) {
+			group.removeChild( allInputs[allInputs.length - 1] );
+			if ( group.querySelector( '.add-key' ).disabled === true )
+				enableBtn( group.querySelector( '.add-key' ), true );
+		} else if ( allInputs.length === 2 ) {
+			group.removeChild( allInputs[allInputs.length - 1] );
+			enableBtn( group.querySelector( '.remove-key' ), false );
+		} else return;
 	}
 
-	function switchAddKeyBtn(isEnabled, parent) {
-		if ( isEnabled ) parent.querySelector( '.btn-add-key' ).disabled = false;
-		else parent.querySelector( '.btn-add-key' ).disabled = true;
+	// создает новую группу инпутов и вставляет в div.groups
+	function addGroup() {
+		var newGroup = document.createElement( 'div' );
+		newGroup.className = "group";
+
+		// наполняем группу инпутами и кнопками
+		addInput( newGroup );
+		addInput( newGroup );
+		addBtn( newGroup, 'btn remove-key', 'Удалить клавишу' );
+		addBtn( newGroup, 'btn add-key', 'Добавить клавишу' );
+		addBtn( newGroup, 'btn remove-group', 'Удалить шорткат' );
+
+		// вставляем группу в div.groups
+		groupsContainer.appendChild( newGroup );
+
+		// если в 1-й группе кнопка .remove-group заблокирована - разблокировать
+		if ( groups[0].querySelector( '.remove-group' ) )
+			enableBtn( groups[0].querySelector( '.remove-group' ), true );
 	}
 
-	function pickIdeData() {
-		// получить название IDE
-		var ideName = ideNameInput.value.toLowerCase();
+	// удаляет последнюю групу в div.groups
+	function removeGroup( group ) {
+		// если в div.groups 3 и > групп, просто удалить переданную группу;
+		// если в div.groups 2 группы, удалить переданную
+		// и заблокировать кнопку .remove-group в последней оставшейся;
+		// иначе ничего не делать
+		if ( group.parentNode.children.length > 2 ) {
+			group.parentNode.removeChild( group );
+		} else if ( group.parentNode.children.length === 2 ) {
+			group.parentNode.removeChild( group );
+			enableBtn( groups[0].querySelector( '.remove-group' ), false );
+		} else return;
+	}
 
-		// получить шорткаты
-		var shortcuts = [];
-		Array.prototype.forEach.call( inputsGroups, function( group ) {
-			var keyInputs = group.getElementsByTagName( 'INPUT' );
+	// создает новую кнопку и добавляет в div.group
+	function addBtn( group, btnClass, html ) {
+		var newBtn = document.createElement( 'button' );
+		newBtn.className = btnClass;
+		newBtn.setAttribute( 'type', 'button' );
+		newBtn.innerHTML = html;
 
-			// получить клавиши шортката
-			var keys = [];
-			Array.prototype.forEach.call( keyInputs, function( keyInput ) {
-				keys.push( keyInput.value.toLowerCase() );
-			});
+		group.appendChild( newBtn );
+	}
 
-			shortcuts.push(keys);
+	// добавляет или убирает переданной кнопке аттрибут disabled
+	function enableBtn( btn, isEnabled ) {
+		if ( isEnabled ) btn.disabled = false;
+		else btn.disabled = true;
+	}
+
+
+
+	// проверяет заполненность полей
+	function checkInputs() {
+		var allInputs = additionPanel.getElementsByTagName( 'INPUT' );
+		// check присвоится true, если заполненно каждое поле,
+		// или false, если хотя бы одно не заполнено
+		var check = Array.prototype.every.call( allInputs, function( input ) {
+			if ( input.value ) return true;
 		});
-
-		var ideData = [ideName, shortcuts];
-		return ideData;
+		return check;
 	}
 
-	function checkKeyInputs() {
-		var keyInputs = ideAdditionPanel.getElementsByTagName( 'INPUT' );
-		var check = Array.prototype.every.call( keyInputs, function( keyInput ) {
-			if ( keyInput.value ) return true;
-		});
-
-		return check ? true : false;
-	}
-
-	function highlightEmptyInputs() {
-		var allInputs = ideAdditionPanel.getElementsByTagName( "INPUT" );
-		var emptyInputs = Array.prototype.filter.call( allInputs, function( keyInput ) {
-			if ( !keyInput.value ) return true;
-		} );
-		Array.prototype.forEach.call( emptyInputs, function( emptyInput ) {
-			emptyInput.classList.add( "empty" );
-		} );
-	}
-
-	function createUserIde() {
-		var data = pickIdeData();
+	// создает новую IDE, сохраняет ее в локальном хранилище и добавляет в игру
+	function addUserIde() {
+		// получаем значения полей
+		var data = pickData();
+		// получаем название IDE
 		var ideName = data[0];
+		// получаем массив с шорткатами
 		var shortcuts = data[1];
 
-		var processedShortcuts = [];
+		// создаем массив newIde и наполняем его обработанными шорткатами
+		var newIde = [];
 		shortcuts.forEach( function( shortcut ) {
+			// создаем описание шортката и наполняем его
 			var description = '';
 			shortcut.forEach( function( key ) {
+				// берем клавишу из шортката, делаем первую букву заглавной
 				var subString = key.slice( 0, 1 ).toUpperCase() + key.slice( 1 );
+				// если в описании еще ничего нет, просто добавляем в него клавишу;
+				// если в описании уже есть клавиши, добавляем '+' и клавишу
 				if ( description === '' ) {
 					description += subString;
 				} else {
@@ -635,106 +683,135 @@ var playShortcats = function() {
 				}
 			});
 
+			// создаем массив с клавишами и наполняем его
 			var keys = [];
 			shortcut.forEach( function( key ) {
 				keys.push( hotkeys[key] );
 			});
 
+			// создаем обработанный шорткат, наполняем его описанием и клавишами
+			// и добавляем в массив newIde
 			var processedShortcut = {
 				'description': description,
 				'keys': keys
 			};
-			processedShortcuts.push(processedShortcut);
+			newIde.push(processedShortcut);
 		});
 
-		localStorage.setItem( ideName, JSON.stringify( processedShortcuts ) );
-		editors.push( JSON.parse( localStorage.getItem( ideName ) ) );
+		// сохраняем массив newIde (переделанный в строку)
+		// в локальное хранилище под ключом ideName
+		localStorage.setItem( ideName, JSON.stringify( newIde ) );
+
+		// добавляем newIde в массив editors
+		editors.push( newIde );
+		// добавляем в селект опцию с названием новой IDE
 		addSelectOption( ideName );
+		// сбрасываем значения всех инпутов
 		resetInputs();
+
 		showMessage( 'Добавлена новая IDE - ' + ideName.slice( 0, 1 ).toUpperCase() + ideName.slice( 1 ) );
 	}
 
-	function addSelectOption(ideName) {
+	// собирает значения полей и возвращает массив,
+	// состоящий из названия IDE и массива с шорткатами
+	function pickData() {
+		// получаем название IDE
+		var ideName = additionPanel.querySelector( '[name="ide-name"]' ).value.toLowerCase();
+
+		// собираем шорткаты в массив
+		var shortcuts = [];
+		Array.prototype.forEach.call( groups, function( group ) {
+			// получаем инпуты для клавиш в группе
+			var keyInputs = group.getElementsByTagName( 'INPUT' );
+
+			// собираем клавиши шортката в массив
+			var keys = [];
+			Array.prototype.forEach.call( keyInputs, function( keyInput ) {
+				keys.push( keyInput.value.toLowerCase() );
+			});
+
+			// добавляем в массив с шорткатам новый шорткат
+			shortcuts.push(keys);
+		});
+
+		// объединяем название IDE и массив с шорткатами в 1 массив и возвращаем его
+		var ideData = [ideName, shortcuts];
+		return ideData;
+	}
+
+	// подсвечивает незаполненные поля
+	function highlightEmptyInputs() {
+		var allInputs = additionPanel.getElementsByTagName( "INPUT" );
+		// получаем все незаполненные поля
+		var emptyInputs = Array.prototype.filter.call( allInputs, function( input ) {
+			if ( !input.value ) return true;
+		});
+		// добавляем незаполненным полям класс "empty"
+		Array.prototype.forEach.call( emptyInputs, function( emptyInput ) {
+			emptyInput.classList.add( "empty" );
+		});
+
+		showMessage( 'Не все поля заполнены.' );
+	}
+
+	// добавляет в селект опцию с названием новой IDE
+	function addSelectOption( ideName ) {
 		var option = document.createElement( 'option' );
 		option.innerHTML = ideName.slice( 0, 1 ).toUpperCase() + ideName.slice( 1 );
 		option.setAttribute( 'value', ideName );
 		html.select.appendChild( option );
 	}
 
-	// 05.30
-	// заполняет datalist опциями
-	function fillDatalist() {
-		// если в datalist есть опции - убрать
-		if ( datalist.innerHTML ) datalist.innerHTML = '';
-
-		for ( var key in hotkeys ) {
-			var option = createOption();
-			option.innerHTML = key.slice( 0, 1 ).toUpperCase() + key.slice( 1 );
-		}
-	}
-	fillDatalist();
-
-	function createOption() {
-		var option = document.createElement( 'option' );
-		datalist.appendChild( option );
-		return option;
-	}
-
-	function addGroup() {
-		var group = document.createElement( 'div' );
-
-		var groupNumber = inputsGroups.length + 1;
-		group.className = "group group-" + groupNumber;
-
-		addInput( group );
-		addInput( group );
-		addBtn( group, 'btn-remove-key', 'Удалить клавишу' );
-		addBtn( group, 'btn-add-key', 'Добавить клавишу' );
-		addBtn( group, 'btn-remove-group', 'Удалить шорткат' );
-
-		inputsGroupsContainer.appendChild( group );
-
-		inputsGroups = ideAdditionPanel.querySelectorAll( '.group' );
-		var disabledRemoveGroupBtn = ideAdditionPanel.querySelector( '.btn-remove-group:disabled' );
-		if (disabledRemoveGroupBtn) disabledRemoveGroupBtn.disabled = false;
-	}
-
-	function removeGroup( group ) {
-		if ( group.parentNode.children.length > 2 ) {
-			group.parentNode.removeChild( group );
-			inputsGroups = ideAdditionPanel.querySelectorAll( '.group' );
-		} else if ( group.parentNode.children.length === 2 ) {
-			if ( group !== group.parentNode.firstElementChild )
-				group.parentNode.firstElementChild.querySelector( '.btn-remove-group' ).disabled = true;
-			else
-				group.parentNode.lastElementChild.querySelector( '.btn-remove-group' ).disabled = true;
-			group.parentNode.removeChild( group );
-			inputsGroups = ideAdditionPanel.querySelectorAll( '.group' );
-		} else {
-			group.querySelector( '.btn-remove-group' ).disabled = true;
-			return;
-		}
-	}
-
-	function addBtn(parent, btnClass, html) {
-		var addKeyBtn = document.createElement( 'button' );
-		addKeyBtn.className = btnClass;
-		addKeyBtn.setAttribute( 'type', 'button' );
-		addKeyBtn.innerHTML = html;
-
-		parent.appendChild( addKeyBtn );
-	}
-
+	// сбрасывает значения всех инпутов
 	function resetInputs() {
-		var allInputs = ideAdditionPanel.getElementsByTagName( 'INPUT' );
+		var allInputs = additionPanel.getElementsByTagName( 'INPUT' );
 		Array.prototype.forEach.call( allInputs, function( input ) {
 			input.value = "";
 		});
 	}
 
+
+
+	// 05.30
+	// заполняет datalist опциями с клавишами
+	function fillDatalist() {
+		// если в datalist уже есть опции - убрать
+		if ( datalist.innerHTML ) datalist.innerHTML = '';
+
+		// добавляем в datalist столько опций, сколько в объекте hotkeys клавиш
+		for ( var key in hotkeys ) {
+			addDatalistOption( key );
+		}
+	}
+	// заполняем datalist опциями
+	fillDatalist();
+
+	// добавляет в datalist опцию с клавишей
+	function addDatalistOption( key ) {
+		var option = document.createElement( 'option' );
+		option.innerHTML = key.slice( 0, 1 ).toUpperCase() + key.slice( 1 );
+		datalist.appendChild( option );
+	}
+
+	// выводит сообщение в .dialog
 	function showMessage( message ) {
 		dialog.innerHTML = message;
 	}
+
+
+
+	// 06.02
+	// получаем массив с названиями (ключами) всех сохраненных в локальном хранилище IDE
+	// (пример: ["brackets", "qwerty"])
+	var storedIdeNames = Object.keys( localStorage );
+	// добавляем в игру все сохраненные в локальном хранилище IDE
+	storedIdeNames.forEach( function( ideName ) {
+		// берем из локального хранилища строку с шорткатами по ключу,
+		// распарсиваем и добавляем в массив editors
+		editors.push( JSON.parse( localStorage[ideName] ) );
+		// добавляем в селект опцию с названием IDE
+		addSelectOption( ideName );
+	});
 
 
 
