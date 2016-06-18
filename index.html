@@ -22,9 +22,12 @@
 	<!-- Мои стили -->
 	<link rel="stylesheet" href="app/css/style.css">
 	<link href='https://fonts.googleapis.com/css?family=Galindo&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+	<script src="https://cdn.polyfill.io/v2/polyfill.js?features=Element.prototype.closest,Node.prototype.contains,Element.prototype.after"></script>
 </head>
 
-	<body onkeydown="return false">
+	<!-- <body onkeydown="return false"> -->
+	<body>
 		<main>
 			<div class="playground">
 				<output class="quiz-area" id="quiz-box"></output>
@@ -32,10 +35,38 @@
 			</div>
 
 			<select class="ide-selection" name="ide-selection" id="ide-selection">
-				<option disabled>Выберите IDE</option>
+				<option disabled>Select the IDE</option>
 				<option value="ide_1" selected>Atom</option>
 				<option value="ide_2">Sublime</option>
 			</select>
+
+			<form class="editor-form" id="editor-form" action="/echo" method="post">
+				<div class="row">
+					<label for="editor-name">Editor name</label>
+					<input id="editor-name" name="editor-name" type="text">
+				</div>
+				<div class="row">
+					<span>Shortcuts</span>
+					<div class="groups">
+						<div class="group">
+							<input class="descr-input" name="shortcut-descr-1" type="text" placeholder="Description">
+							<input class="key-input" name="key-1" type="text" list="key-list" placeholder="Key">
+							<input class="key-input" name="key-2" type="text" list="key-list" placeholder="Key">
+							<button class="btn remove-key" type="button">Remove key</button>
+							<button class="btn add-key" type="button">Add key</button>
+							<button class="btn remove-group" type="button" disabled>Remove shortcut</button>
+						</div>
+					</div>
+					<datalist id="key-list">
+						<option>Ctrl</option>
+						<option>Shift</option>
+						<option>Alt</option>
+					</datalist>
+				</div>
+				<button class="btn add-shortcut" type="button">Add shortcut</button>
+				<button class="btn add-editor" type="button">Add editor</button>
+				<output class="form-feedback" id="form-feedback"></output>
+			</form>
 		</main>
 
 		<script src="app/js/script.js"></script>

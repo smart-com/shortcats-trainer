@@ -39,7 +39,6 @@ main {
 	align-items: center;
 	flex-direction: column;
 	min-width: 400px;
-	height: 46px;
 	line-height: 46px;
 	outline: none;
 }
@@ -49,19 +48,39 @@ main {
 }
 
 .quiz-area {
-	/* Лида, 2016.05.19: реализована подсветка клавиш при ошибочном нажатии. */
 	flex-direction: row;
+	flex-wrap: wrap;
 	font-size: 2rem;
+	text-align: center;
 }
 
-/* Лида, 2016.05.19: реализована подсветка клавиш при ошибочном нажатии. */
-.quiz-area span:not(:last-child) {
-	position: relative;
+.quiz-area .descr,
+.quiz-area .key {
 	display: inline-block;
 	vertical-align: baseline;
+}
+
+.quiz-area .descr {
+	width: 100%;
+}
+
+.quiz-area .key {
+	position: relative;
 	margin-right: 1em;
 }
-/* Лида, 2016.05.23: реализована подсветка клавиш при правильном нажатии. */
+.quiz-area .key:last-child {
+	margin-right: 0;
+}
+.quiz-area .key:not(:last-child)::before {
+	content: '+';
+	position: absolute;
+	left: 100%;
+	width: 1em;
+	text-align: center;
+}
+.quiz-area .invisible {
+	visibility: hidden;
+}
 .quiz-area .success {
 	background-color: rgba(97, 232, 171, .3);
 	outline: 2px dashed rgb(97, 232, 171);
@@ -69,13 +88,6 @@ main {
 .quiz-area .error {
 	background-color: rgba(165, 40, 40, .3);
 	outline: 2px dashed;
-}
-.quiz-area span:not(:last-child)::before {
-	content: '+';
-	position: absolute;
-	left: 100%;
-	width: 1em;
-	text-align: center;
 }
 
 .ide-selection {
@@ -97,4 +109,70 @@ main {
 		13px 13px 1px -7px rgba(255, 255, 0, .6),
 		0 0 15px 7px rgba(224, 0, 0, .6);
 	outline: none;
+}
+
+
+
+
+/* Форма для добавления/обновления редактора */
+
+.editor-form {
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding: 20px;
+}
+
+.row {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+.row {
+	margin-bottom: 20px;
+}
+
+/* Чтобы в IE10 флекс-элементы - лейбл и спан - были блочными,
+потому что иначе они останутся строчными (такой баг в этом браузере) */
+.row > :first-child {
+	display: block;
+}
+
+.group {
+	font-size: 0;
+}
+
+.group > * {
+	font-size: 1rem;
+}
+
+.empty {
+	background-color: rgba(165, 40, 40, .3);
+	border-color: rgb(165, 40, 40);
+}
+.key-input {
+	width: 75px;
+}
+
+.group .btn {
+	font-size: 0;
+}
+.group .btn:before {
+	font-size: 1rem;
+}
+.remove-key:before {
+	content: "-";
+}
+.add-key:before {
+	content: "+";
+}
+.remove-group:before {
+	content: "×";
+}
+
+.form-feedback {
+	display: inline-block;
+	vertical-align: top;
+	width: 100%;
+	margin-top: 20px;
 }
