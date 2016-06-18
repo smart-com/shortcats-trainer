@@ -23,11 +23,9 @@
 	<link rel="stylesheet" href="app/css/style.css">
 	<link href='https://fonts.googleapis.com/css?family=Galindo&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
 
-	<!-- 05.29 -->
 	<script src="https://cdn.polyfill.io/v2/polyfill.js?features=Element.prototype.closest,Node.prototype.contains,Element.prototype.after"></script>
 </head>
 
-	<!-- 05.28 -->
 	<!-- <body onkeydown="return false"> -->
 	<body>
 		<main>
@@ -42,11 +40,10 @@
 				<option value="ide_2">Sublime</option>
 			</select>
 
-			<!-- 05.28 -->
-			<form class="ide-form" id="ide-form" action="/echo" method="post">
+			<form class="editor-form" id="editor-form" action="/echo" method="post">
 				<div class="row">
-					<label for="ide-name">IDE name</label>
-					<input id="ide-name" name="ide-name" type="text">
+					<label for="editor-name">Editor name</label>
+					<input id="editor-name" name="editor-name" type="text">
 				</div>
 				<div class="row">
 					<span>Shortcuts</span>
@@ -67,8 +64,8 @@
 					</datalist>
 				</div>
 				<button class="btn add-shortcut" type="button">Add shortcut</button>
-				<button class="btn add-ide" type="button">Add IDE</button>
-				<output class="dialog"></output>
+				<button class="btn add-editor" type="button">Add editor</button>
+				<output class="form-feedback" id="form-feedback"></output>
 			</form>
 		</main>
 

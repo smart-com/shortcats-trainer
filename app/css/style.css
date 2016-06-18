@@ -48,21 +48,22 @@ main {
 }
 
 .quiz-area {
-	/* Лида, 2016.05.19: реализована подсветка клавиш при ошибочном нажатии. */
 	flex-direction: row;
 	flex-wrap: wrap;
 	font-size: 2rem;
 	text-align: center;
 }
 
-/* Лида, 2016.05.19: реализована подсветка клавиш при ошибочном нажатии. */
-.quiz-area span {
+.quiz-area .descr,
+.quiz-area .key {
 	display: inline-block;
 	vertical-align: baseline;
 }
+
 .quiz-area .descr {
 	width: 100%;
 }
+
 .quiz-area .key {
 	position: relative;
 	margin-right: 1em;
@@ -78,9 +79,8 @@ main {
 	text-align: center;
 }
 .quiz-area .invisible {
-	display: none;
+	visibility: hidden;
 }
-/* Лида, 2016.05.23: реализована подсветка клавиш при правильном нажатии. */
 .quiz-area .success {
 	background-color: rgba(97, 232, 171, .3);
 	outline: 2px dashed rgb(97, 232, 171);
@@ -114,11 +114,9 @@ main {
 
 
 
+/* Форма для добавления/обновления редактора */
 
-/* 05.28 */
-/* Форма для добавления IDE/шорткатов */
-
-.ide-form {
+.editor-form {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -172,8 +170,9 @@ main {
 	content: "×";
 }
 
-.dialog {
+.form-feedback {
 	display: inline-block;
 	vertical-align: top;
 	width: 100%;
+	margin-top: 20px;
 }
