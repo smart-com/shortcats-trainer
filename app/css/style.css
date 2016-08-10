@@ -78,9 +78,6 @@ main {
 	width: 1em;
 	text-align: center;
 }
-.quiz-area .invisible {
-	visibility: hidden;
-}
 .quiz-area .success {
 	background-color: rgba(97, 232, 171, .3);
 	outline: 2px dashed rgb(97, 232, 171);
@@ -142,7 +139,7 @@ main {
 	font-size: 0;
 }
 
-.group > * {
+.group * {
 	font-size: 1rem;
 }
 
