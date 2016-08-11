@@ -1,11 +1,11 @@
 /**
- * @namespace playShortcats
+ * @namespace playShortcuts
  * @summary Пространство имен для приложения
  * @listen window:onload
  * See {@tutorial readMe}
  * @return { Object } Пока что эта штука используется только для тестов...
  */
-var playShortcats = function() {
+var playShortcuts = function() {
 
 	// Чтобы добавить IDE, нужно просто добавить
 	// название вашей IDE в HTML-селект,
@@ -44,6 +44,7 @@ var playShortcats = function() {
 	var atom = [{
 		'description': 'Toggle tree view',
 		'keys': {
+			// TODO: words больше не нужны,
 			'words': [ 'Ctrl', '\\' ],
 			'codes': [ hotkeys.ctrl, hotkeys.backSlash ]
 		}
@@ -176,8 +177,6 @@ var playShortcats = function() {
 			quiz.setRandomShortkat();
 			// Выводим его описание
 			quiz.showQuestion( html.quizArea );
-			// Выводим названия клавиш
-			quiz.insertKeys( html.quizArea );
 			// Очищаем поле, если там остались результаты прошлой проверки
 			html.resultArea.value = '';
 			return quiz;
@@ -206,6 +205,7 @@ var playShortcats = function() {
 			yes = true;
 			app.counter = 0;
 			this.userInput = [];
+			this.matchedKeys = 0;
 			html.quizArea.innerHTML = "";
 		}
 	};
@@ -216,31 +216,31 @@ var playShortcats = function() {
 	 * @type     {Function}
 	 * @property {Boolean}   gameStatus            Состояние игры
 	 * @property {Object}    currentIde            Текущая IDE
-	 * @property {String}    randomShortcat        Проверяемый шорткат,
+	 * @property {String}    randomShortcut        Проверяемый шорткат,
 	 *                                             преобразованный в строку
-	 * @property {String}    userInput             Клавиши, набранные пользователем
+	 * @property {String}    userInput             Клавиша, нажатая пользователем
+	 * @property {Number}    matchedKeys           Количество правильно нажатых клавиш
 	 * @property {Number}    totalResult           Все ответы по выбранной IDE
 	 * @property {Number}    currentResult         Только правильные ответы
 	 * @property {Method}    setCurrentIde         Устанавливает текущую IDE
 	 * @property {Method}    setRandomShortkat     Устанавливает случайный шорткат
 	 * @property {Method}    showQuestion          Выводим описание случайного шортката в HTML
-	 * @property {Method}    insertKeys            Вставляет названия клавиш шортката в output.quiz-area
+	 * @property {Method}    showPressedKey        Вставляет в output.quiz-area нажатые клавиши
 	 * @property {Method}    showWin               Выводит в HTML положительный результат проверки
 	 *                                             и изменяет значения счетчиков
 	 * @property {Method}    showLoose             Выводит в HTML отрицательный результат
 	 *                                             и изменяет значение общего счетчика проверок
-	 * @property {Method}    showLoose             Выводит в HTML отрицательный результат
-	 *                                             и изменяет значение общего счетчика проверок
 	 * @property {Method}    showTotal             После нажатия Enter выводим результат проверок
 	 *                                             по текущей IDE
-	 * @property {Method}    checkShortcat         Проверяет шорткат, введенный пользователем
+	 * @property {Method}    checkShortcut         Проверяет шорткат, введенный пользователем
 	 * @return   {Object} Проверяет текущий шорткат
 	 */
 	var Quiz = function() {
 		this.gameStatus = true;
-		this.currentIde = {};
-		this.randomShortcat = '';
-		this.userInput = [];
+		this.currentIde = [];
+		this.randomShortcut = {};
+		this.userInput = '';
+		this.matchedKeys = 0;
 		this.totalResult = 0;
 		this.currentResult = 0;
 
@@ -268,91 +268,111 @@ var playShortcats = function() {
 			var randomIndex = getRand( this.currentIde.length - 1 );
 
 			// Устанавливаем случайный шорткат при помощи случайного индекса
-			this.randomShortcat = this.currentIde[ randomIndex ];
+			this.randomShortcut = {
+				'description': this.currentIde[ randomIndex ].description,
+				/**
+				 * Понадобится отдельный массив,
+				 * чтобы можно было "вычеркивать" из него нажатые клавиши
+				 */
+				'keys': this.currentIde[ randomIndex ].keys.codes.slice(),
+				/**
+				 * Количество клавиш в шорткате. Нужно сразу сохранить это число, пока
+				 * мы еще не начали "вычеркивать" клавиши при проверке
+				 */
+				'amountOfKeys': this.currentIde[ randomIndex ].keys.codes.length,
+			};
 
 			//return randomIndex;
 		};
 
 		/**
 		 * @param {Object} htmlOutput  Поле для вывода описания шортката
-		 * @      {String} description Описание шортката
 		 * @todo  Извлечь метод и перенести его в html или в app?..
 		 */
 		this.showQuestion = function( htmlOutput ) {
-			var description = this.randomShortcat.description;
-			htmlOutput.appendChild( createSpan( description, 'descr' ) );
+			var question = document.createElement( 'span' );
+			question.innerHTML = this.randomShortcut.description;
+			question.className = 'descr';
+			htmlOutput.appendChild( question );
 		};
-
-		// Вставляет спаны с названиями клавиш шортката в output.quiz-area
-		this.insertKeys = function( htmlOutput ) {
-			var words = this.randomShortcat.keys.words;
-			words.forEach( function( word ) {
-				htmlOutput.appendChild( createSpan( word, 'key invisible' ) );
-			});
-		};
-		function createSpan( inner, spanClass ) {
-			var span = document.createElement( 'span' );
-			span.innerHTML = inner;
-			span.className = spanClass;
-			return span;
-		}
 
 		/**
 		 * @param  {Object} event Событие нажатия клавиши
 		 * @todo Хоть эта функция и лучше, чем была, но она мне все равно не нравится
 		 *       Она какая-то кривая, много всего проверяет и под тесты не ложится...
 		 */
-		this.checkShortcat = function( event ) {
+		this.checkShortcut = function( event ) {
 			// Еще одна проверка
 			app.counter++;
 			// Запоминаем нажатую клавишу
-			this.userInput.push( event.keyCode );
+			this.userInput = event.keyCode;
 
 			// Запоминаем массив из кодов клавиш случайного шортката
-			var randomShortcat = this.randomShortcat.keys.codes;
+			var randomShortcut = this.randomShortcut;
+
 			// Предполагаем, что проверка не прошла
 			var checkResult = false;
 
-			// Если в строке случайного шортката есть нажатая клавиша ...
-			if ( this.userInput[app.counter - 1] === +randomShortcat[app.counter - 1] ) {
-				// Значит нажата верная клавиша
-				checkResult = true;
-				html.quizArea.querySelectorAll( '.key' )[app.counter - 1].classList.remove( 'invisible' );
-				html.quizArea.querySelectorAll( '.key' )[app.counter - 1].classList.add( 'success' );
+			// Показываем, какая клавиша была нажата
+			this.showPressedKey( html.quizArea );
+
+			// Проверяем, есть ли в шорткате нажатая клавиша
+			for ( var i = 0; i < randomShortcut.keys.length; i++ ) {
+				// Если есть...
+				if ( +randomShortcut.keys[i] === this.userInput ) {
+					// ... "вычеркиваем" ее из шортката
+					randomShortcut.keys.splice( i, 1 );
+					// Отмечаем, что совпадение было
+					this.matchedKeys++;
+					checkResult = true;
+					// Подсвечиваем клавишу зеленым
+					html.quizArea.querySelectorAll( '.key' )[app.counter - 1].classList.add( 'success' );
+					break;
+				}
 			}
-			else {
-				/**
-				 * @todo  Подсветить нажатую клавишу в описании шортката,
-				 *        чтобы было видно сколько клавиш нажал пользователь
-				 */
-				html.quizArea.querySelectorAll( '.key' )[app.counter - 1].classList.remove( 'invisible' );
+
+			// Если клавиша нажата неправильная...
+			if ( !checkResult )
+				// ... подсвечиваем клавишу красным
 				html.quizArea.querySelectorAll( '.key' )[app.counter - 1].classList.add( 'error' );
-			}
 
 			// Если было нажато столько же клавиш, сколько есть в проверяемом шорткате ...
-			if( app.counter === randomShortcat.length ) {
-
-				// ...и если последняя нажатая клавиша есть в случайном шорткате ...
-				if( this.userInput.join( '' ) === randomShortcat.join( '' ) ) {
-					// ... значит шорткат верен
-					if( checkResult === true ) {
-						// Показываем пользователю положительный результат
-						this.showWin( checkResult );
-					}
+			if( app.counter === this.randomShortcut.amountOfKeys ) {
+				// ...и если все клавиши совпали...
+				if ( this.matchedKeys === this.randomShortcut.amountOfKeys ) {
+					// ...показываем сообщение об успехе
+					this.showWin( checkResult );
 				} else {
-					// Иначе показываем ошибку
+					// ...иначе показываем сообщение о неудаче
 					this.showLoose();
 				}
+
 				// Очищаем результаты перед проверкой следующего шортката
 				app.clearQuiz.call( this );
 				// Устанавливаем следующий случайный шорткат
 				quiz.setRandomShortkat();
 				// Выводим его описание в HTML
 				quiz.showQuestion( html.quizArea );
-				// Выводим названия клавиш в HTML
-				quiz.insertKeys( html.quizArea );
 			}
 		},
+
+		// Вставляет в output.quiz-area нажатые клавиши
+		this.showPressedKey = function( htmlOutput ) {
+			var pressedKey = document.createElement( 'span' );
+
+			// Проверяем, есть ли в объекте hotkeys нажатая клавиша
+			var word = '';
+			for (var keyName in hotkeys) {
+				if (+hotkeys[keyName] === event.keyCode) {
+					word = keyName[0].toUpperCase() + keyName.slice(1);
+					break;
+				}
+			}
+
+			pressedKey.innerHTML = word || 'No such key in the list';
+			pressedKey.className = 'key';
+			htmlOutput.appendChild( pressedKey );
+		};
 
 		// Выводим в HTML положительный результат проверки
 		// и инкрементируем счетчики правильных ответов и общий
@@ -399,16 +419,18 @@ var playShortcats = function() {
 	 * @dunno    {dunno}     addKeyInput           Cоздает новый инпут для ввода клавиши
 	 *                                             и добавляет его в div.group
 	 * @dunno    {Function}  removeKeyInput        Удаляет крайний правый инпут в div.group
-	 * @dunno    {Function}  addGroup              Создает новую группу инпутов и вставляет в div.groups
+	 * @dunno    {Function}  addGroup              Создает новую группу инпутов
+	 *                                             и вставляет в div.groups
 	 * @dunno    {Function}  removeGroup           Удаляет указанную групу в div.groups
 	 * @dunno    {Function}  addDescrInput         Создает инпут для ввода описания шортката
 	 * @dunno    {Function}  addBtn                Создает новую кнопку и добавляет в div.group
 	 * @dunno    {Function}  highlightEmptyInputs  Подсвечивает незаполненные поля
 	 * @dunno    {Function}  resetInputs           Сбрасывает значения всех инпутов
-	 * @dunno    {Function}  checkInputs           Gроверяет заполненность полей
-	 * @dunno    {Function}  addEditor             Cоздает новый редактор, кладет в хранилище и добавляет в игру
-	 * @dunno    {Function}  pickData              Cобирает значения полей и возвращает объект с данными
-	 *                                             для добавляемого редактора
+	 * @dunno    {Function}  checkInputs           Проверяет заполненность полей
+	 * @dunno    {Function}  addEditor             Cоздает новый редактор, кладет в хранилище
+	 *                                             и добавляет в игру
+	 * @dunno    {Function}  pickData              Cобирает значения полей и возвращает объект
+	 *                                             с данными для добавляемого редактора
 	 * @dunno    {Function}  proccessKeys          Принимает массив из клавиш, обрабатывает
 	 *                                             и возвращает объект с названиями клавиш и их кодами
 	 * @property {Method}    fillDatalist          Заполняет datalist опциями
@@ -477,7 +499,11 @@ var playShortcats = function() {
 			 * Полифилл пока подключен в head
 			 */
 			if ( lastInput ) lastInput.after( newInput );
-			// если в группе нет ни 1-о инпута, просто добавляем его в конец родительского контейнера
+			/**
+			 * Если в группе нет ни 1-о инпута,
+			 * (например, при создании группы инпутов)
+			 * просто добавляем его в конец родительского контейнера
+			 */
 			else group.appendChild( newInput );
 
 			// Если это 4-й по счету инпут, блокируем кнопку .add-key
@@ -485,7 +511,6 @@ var playShortcats = function() {
 			if ( newInputNumber === 4 ) addKeyBtn.disabled = true;
 			// Если кнопка .remove-key есть и она заблокирована - разблокировать
 			var removeKeyBtn = group.querySelector( '.remove-key' );
-			// TODO: можно ли обойтись без проверки наличия кнопки?
 			if ( removeKeyBtn && removeKeyBtn.disabled === true ) removeKeyBtn.disabled = false;
 		}
 
@@ -808,8 +833,8 @@ var playShortcats = function() {
 			// Кладем в хранилище обновленный список шорткатов под ключом - названием редактора
 			localStorage[editorName] = JSON.stringify( storedShortcuts );
 
-			// Обновляем список названий редакторов, лежащих в хранилище
-			editorsNames = Object.keys( localStorage );
+			// // Обновляем список названий редакторов, лежащих в хранилище
+			// editorsNames = Object.keys( localStorage );
 
 			// Обновляем шорткаты в игре
 			editors = [atom, sublime];
@@ -932,7 +957,7 @@ var playShortcats = function() {
 		// Если игра продолжается ...
 		if ( quiz.gameStatus ) {
 			// Проверяем текущий шорткат
-			quiz.checkShortcat( event );
+			quiz.checkShortcut( event );
 			// Запускаем тесты
 			runTests();
 		// Иначе просто выходим ( ждем следующего нажатия )
@@ -980,4 +1005,4 @@ var playShortcats = function() {
 };
 
 // Запуск приложения
-window.onload = playShortcats;
+window.onload = playShortcuts;
