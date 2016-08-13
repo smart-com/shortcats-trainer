@@ -387,7 +387,7 @@ var playShortcuts = function() {
 		// и инкрементируем только общий счетчик
 		/** @todo  Извлечь метод и перенести его в html или в app?.. */
 		this.showLoose = function() {
-			html.resultArea.value = 'You loose!!! Your results : ' +
+			html.resultArea.value = 'You lose!!! Your results : ' +
 									this.currentResult + ' / ' +
 									++this.totalResult;
 		},
@@ -976,8 +976,22 @@ var playShortcuts = function() {
 	// window.document.addEventListener( 'keydown', forbidRepetition );
 	window.document.addEventListener( 'keydown', onKeydown );
 	function onKeydown( event ) {
-		// полифилл пока подключен в head
-		if ( html.editorForm.contains( event.target ) ) return true;
+		/**
+		 * Отменяем действия по умолчанию после нажатия определенный клавиш
+		 * (или средство от ухода фокуса после нажатия на Alt
+		 * и от вызова окна "Сохранить как").
+		 * Но сначала убедимся, что клавишу нажимают не над каким-нибудь полем
+		 * формы добавления редактора (потому что отмена действия по умолчанию
+		 * в этом случае приведет к тому, что ничего нельзя будет ввести в это поле)
+		 */
+		if ( !event.target.closest( '.editor-form' ) )
+			event.preventDefault();
+
+		/**
+		 * Если нажали что-то на панели добавления редактора - ничего не делать.
+		 * Полифилл пока подключен в head
+		 */
+		if ( html.editorForm.contains( event.target ) ) return;
 		else forbidRepetition( event );
 	}
 
